@@ -1,7 +1,7 @@
 import requests
 import csv
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
@@ -31,12 +31,14 @@ def fetch_team_record(team_name):
                     return f"{wins}-{losses}"
     return "0-0"  # default if not found
     
+from datetime import datetime, timedelta
+
 def convert_datetime_to_natural_format(dt_string):
     # Convert the provided string into a datetime object
     dt_obj = datetime.strptime(dt_string, '%Y-%m-%dT%H:%MZ')
     
     # Adjust for Eastern Time (ET is UTC-4, but this doesn't account for daylight saving)
-    dt_obj = dt_obj.replace(hour=dt_obj.hour-4)
+    dt_obj = dt_obj - timedelta(hours=4)
     
     # Extract date, time, and am/pm information
     date_format = dt_obj.strftime('%m/%d/%Y')
