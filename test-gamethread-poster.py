@@ -14,16 +14,51 @@ def fetch_schedule_from_gist():
     reader = csv.DictReader(raw_csv.splitlines())
     return list(reader)
 
+def fetch_team_record(team_name):
+    """Fetch the win-loss record of a team from the standings CSV."""
+    with open('csv/nfl_standings.csv', 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if row['Team'] == team_name:
+                wins = row['Wins']
+                losses = row['Losses']
+                ties = row['Ties']
+                
+                # Check if the team has any ties
+                if int(ties) > 0:
+                    return f"{wins}-{losses}-{ties}"
+                else:
+                    return f"{wins}-{losses}"
+    return "0-0"  # default if not found
+    
+def convert_datetime_to_natural_format(dt_string):
+    # Convert the provided string into a datetime object
+    dt_obj = datetime.strptime(dt_string, '%Y-%m-%dT%H:%MZ')
+    
+    # Adjust for Eastern Time (ET is UTC-4, but this doesn't account for daylight saving)
+    dt_obj = dt_obj.replace(hour=dt_obj.hour-4)
+    
+    # Extract date, time, and am/pm information
+    date_format = dt_obj.strftime('%m/%d/%Y')
+    time_format = dt_obj.strftime('%I:%M%p ET').lower()
+
+    return date_format, time_format
+    
 def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_link):
+    date_str, time_str = convert_datetime_to_natural_format(date_time)
+    
+    away_team_record = fetch_team_record(away_team)
+    home_team_record = fetch_team_record(home_team)
+    
     headers = {
         'authorization': 'Bearer ' + SQUABBLES_TOKEN
     }
-    title = f"[Game Thread] {away_team} at {home_team} - {week} - {date_time}"
-    content = f"""## {away_team} at {home_team}
+    title = f"[Game Thread] {away_team} at {home_team} - Week {week} - {date_str} at {time_str}"
+    content = f"""## {away_team} ({away_team_record[0]}-{away_team_record[1]}) at {home_team} ({home_team_record[0]}-{home_team_record[1]})
 
 ---------
 
-- Kickoff: {date_time}
+- Kickoff: {time_str}
 - Location: {stadium}
 - [ESPN Gamecast]({gamecast_link})
 
