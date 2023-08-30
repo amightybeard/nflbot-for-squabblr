@@ -32,7 +32,7 @@ def convert_datetime_to_natural_format(dt_string):
     
     # Extract date, time, and am/pm information
     date_format = dt_obj.strftime('%m/%d/%Y')
-    time_format = dt_obj.strftime('%I:%M%p ET').lower()
+    time_format = dt_obj.strftime('%I:%M%p ET')
 
     return date_format, time_format
     
@@ -56,9 +56,9 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
     date_str, time_str = convert_datetime_to_natural_format(date_time)
 
-    title = f"[Game Thread] {away_team} at {home_team} - Week {week} - {date_str} at {time_str}"
+    title = f"[GameThread] {away_team} at {home_team} - {week} - {date_str} at {time_str}"
 
-    content = f"""## {away_team} ({away_team_record}) at {home_team} ({home_team_record})
+    content = f"""##### {away_team} ({away_team_record}) at {home_team} ({home_team_record})
 
 ---------
 
