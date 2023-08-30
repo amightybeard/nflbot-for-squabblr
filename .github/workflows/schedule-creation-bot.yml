@@ -21,7 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests
         
-    - name: Run schedule-creation-bot-gist.py
-      run: python schedule-creation-bot-gist.py
+    - name: Run schedule-creation-bot.py
+      run: python schedule-creation-bot.py
       env:
         NFLBOT_WRITE_TO_GIST: ${{ secrets.NFLBOT_WRITE_TO_GIST }}  # Using the GitHub token from repository secrets
