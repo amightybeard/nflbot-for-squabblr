@@ -1,5 +1,5 @@
 
-name: NFL Schedule Creation Bot
+name: NFL Schedule Creation Bot (Gist Update)
 
 on:
   workflow_dispatch:
@@ -21,13 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests
         
-    - name: Run schedule-creation-bot.py
-      run: python schedule-creation-bot.py
-      
-    - name: Commit and push changes
-      run: |
-        git config --global user.name 'Schedule Creation Bot'
-        git config --global user.email 'github-bot@amightybeard.com'
-        git add csv/nfl-schedule.csv
-        git commit -m "Update NFL schedule"
-        git push
+    - name: Run schedule-creation-bot-gist.py
+      run: python .github/schedule-creation-bot-gist.py
+      env:
+        NFLBOT_WRITE_TO_GIST: ${{ secrets.GH_TOKEN }}  # Using the GitHub token from repository secrets
