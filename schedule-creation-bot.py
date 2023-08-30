@@ -6,33 +6,25 @@ import json
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
 GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
 
-def fetch_nfl_schedule():
-    # The new ESPN API endpoint for the entire season schedule
-    url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
-    
-    # Fetch the data
+def fetch_nfl_schedule_for_week(week_number):
+    """Fetches the NFL schedule for a given week."""
+    url = f"https://cdn.espn.com/core/nfl/schedule?xhr=1&year=2023&week={week_number}"
     response = requests.get(url)
     data = response.json()
+    schedule_data = data['content']['schedule']
+    
     games = []
-
-    for event in data['events']:
-        game_details = {
-            'Week': event.get('weekText', 'N/A'),
-            'Date & Time': event['status']['type'].get('detail', 'N/A'),
-            'Stadium': event.get('location', "N/A"),
-            'Gamecast Link': event['links'][0]['href'] if event.get('links') else "N/A",
-            'Home Team': 'N/A',
-            'Away Team': 'N/A'
-        }
-        
-        competitors = event.get('competitors', [])
-        for competitor in competitors:
-            if competitor['homeAway'] == 'home':
-                game_details['Home Team'] = competitor['team']['displayName']
-            else:
-                game_details['Away Team'] = competitor['team']['displayName']
-        
-        games.append(game_details)
+    for date, game_data in schedule_data.items():
+        for game in game_data['games']:
+            game_details = {
+                'Week': f"Week {game['week']['number']}",
+                'Date & Time': game['competitions'][0]['date'],
+                'Stadium': game['competitions'][0]['venue']['fullName'],
+                'Gamecast Link': game['links'][0]['href'],
+                'Home Team': game['name'].split(" at ")[1],
+                'Away Team': game['name'].split(" at ")[0]
+            }
+            games.append(game_details)
     
     return games
 
@@ -60,22 +52,22 @@ def update_gist_with_schedule(games):
         }
     }
     
-    # Make the API request to update the Gist
+    # Make the request to update the gist
     response = requests.patch(gist_url, headers=headers, json=payload)
-    
-    return response.status_code == 200
+    return response.status_code
 
 def main():
-    # Fetch the entire season schedule from the new ESPN endpoint
-    all_games = fetch_nfl_schedule()
+    all_games = []
+    # Fetching schedule for weeks 1 to 17
+    for week in range(1, 18):
+        all_games.extend(fetch_nfl_schedule_for_week(week))
     
-    # Update the Gist with the fetched schedule
-    success = update_gist_with_schedule(all_games)
-    
-    if success:
-        print("Successfully updated the Gist!")
+    # Updating the gist with the consolidated schedule
+    status_code = update_gist_with_schedule(all_games)
+    if status_code == 200:
+        print("Gist updated successfully!")
     else:
-        print("Failed to update the Gist.")
+        print(f"Failed to update gist. Status code: {status_code}")
 
 if __name__ == "__main__":
     main()
