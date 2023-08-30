@@ -2,39 +2,35 @@ import requests
 import csv
 import os
 import json
-import logging
-
-logging.basicConfig(level=logging.INFO)
 
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
 GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
 
-def fetch_nfl_schedule_for_week(week_number):
-    # Define the API URL
-    url = f"https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=football&league=nfl&region=us&lang=en&contentorigin=espn&buyWindow=1m&showAirings=buy%2Clive%2Creplay&showZipLookup=true&tz=America%2FNew_York"
+def fetch_nfl_schedule():
+    # The new ESPN API endpoint for the entire season schedule
+    url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
     
     # Fetch the data
     response = requests.get(url)
     data = response.json()
-    events = data['sports'][0]['leagues'][0]['events']
-    
-    # List to hold the game details
     games = []
-    
-    for event in events:
-        # Extract necessary information
+
+    for event in data['events']:
         game_details = {
-            'Week': event['weekText'],
-            'Date & Time': event['fullStatus']['type']['detail'],
-            'Stadium': event['location'],
-            'Gamecast Link': event['link']
+            'Week': event.get('weekText', 'N/A'),
+            'Date & Time': event['status']['type'].get('detail', 'N/A'),
+            'Stadium': event.get('location', "N/A"),
+            'Gamecast Link': event['links'][0]['href'] if event.get('links') else "N/A",
+            'Home Team': 'N/A',
+            'Away Team': 'N/A'
         }
         
-        for competitor in event['competitors']:
+        competitors = event.get('competitors', [])
+        for competitor in competitors:
             if competitor['homeAway'] == 'home':
-                game_details['Home Team'] = competitor['displayName']
+                game_details['Home Team'] = competitor['team']['displayName']
             else:
-                game_details['Away Team'] = competitor['displayName']
+                game_details['Away Team'] = competitor['team']['displayName']
         
         games.append(game_details)
     
@@ -70,10 +66,8 @@ def update_gist_with_schedule(games):
     return response.status_code == 200
 
 def main():
-    # Loop through all weeks (1 to 18) and fetch the schedule
-    all_games = []
-    for week in range(1, 19):
-        all_games.extend(fetch_nfl_schedule_for_week(week))
+    # Fetch the entire season schedule from the new ESPN endpoint
+    all_games = fetch_nfl_schedule()
     
     # Update the Gist with the fetched schedule
     success = update_gist_with_schedule(all_games)
