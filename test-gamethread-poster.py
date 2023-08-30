@@ -19,6 +19,7 @@ def fetch_team_record(team_name):
     with open('csv/nfl_standings.csv', 'r', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
+            print(row)  # This will print each row
             if row['Team'] == team_name:
                 wins = row['Wins']
                 losses = row['Losses']
