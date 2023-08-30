@@ -1,0 +1,33 @@
+
+name: NFL Schedule Creation Bot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update_schedule:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        
+    - name: Run schedule-creation-bot.py
+      run: python .github/schedule-creation-bot.py
+      
+    - name: Commit and push changes
+      run: |
+        git config --global user.name 'Schedule Creation Bot'
+        git config --global user.email 'bot@example.com'
+        git add csv/nfl-schedule.csv
+        git commit -m "Update NFL schedule"
+        git push
