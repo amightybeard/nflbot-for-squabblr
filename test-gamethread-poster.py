@@ -1,5 +1,6 @@
 import requests
 import csv
+import os
 from datetime import datetime
 
 SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
