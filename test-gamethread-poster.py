@@ -15,23 +15,13 @@ def fetch_schedule_from_gist():
     return list(reader)
 
 def fetch_team_record(team_name):
-    """Fetch the win-loss record of a team from the standings CSV."""
+    """Fetch the win-loss-tie record of a team from the standings CSV."""
     with open('csv/nfl_standings.csv', 'r', newline='') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
             if row['Team'] == team_name:
-                wins = row['Wins']
-                losses = row['Losses']
-                ties = row['Ties']
-                
-                # Check if the team has any ties
-                if int(ties) > 0:
-                    return f"{wins}-{losses}-{ties}"
-                else:
-                    return f"{wins}-{losses}"
-    return "0-0"  # default if not found
-    
-from datetime import datetime, timedelta
+                return row['Wins'], row['Losses'], row['Ties']
+    return '0', '0', '0'  # default if not found
 
 def convert_datetime_to_natural_format(dt_string):
     # Convert the provided string into a datetime object
