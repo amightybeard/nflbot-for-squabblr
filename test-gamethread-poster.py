@@ -69,7 +69,12 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 | Team | 1Q | 2Q | 3Q | 4Q | Final |
 |---|---|---|---|---|---|
 | **{home_team}** | 0 | 0 | 0 | 0 | 0 |
-| **{away_team}** | 0 | 0 | 0 | 0 | 0 |"""
+| **{away_team}** | 0 | 0 | 0 | 0 | 0 |
+
+---------
+
+I am a bot. Post feedback on /s/ModBot.
+"""
 
     resp = requests.post('https://squabblr.co/api/new-post', data={
         "community_name": "NFL",
