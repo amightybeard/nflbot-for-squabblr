@@ -60,7 +60,7 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
     content = f"""##### {away_team} ({away_team_record}) at {home_team} ({home_team_record})
 
----------
+-----
 
 - Kickoff: {time_str}
 - Location: {stadium}
@@ -69,7 +69,11 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 | Team | 1Q | 2Q | 3Q | 4Q | Final |
 |---|---|---|---|---|---|
 | **{home_team}** | 0 | 0 | 0 | 0 | 0 |
-| **{away_team}** | 0 | 0 | 0 | 0 | 0 |"""
+| **{away_team}** | 0 | 0 | 0 | 0 | 0 |
+
+-----
+
+I am a bot. Post your feedback to /s/ModBot"""
 
     resp = requests.post('https://squabblr.co/api/new-post', data={
         "community_name": "NFL",
