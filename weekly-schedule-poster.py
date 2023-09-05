@@ -83,23 +83,31 @@ I am a bot. Post your feedback to /s/ModBot"""
 
     return resp.json()
 
-def main():
-    schedule = fetch_schedule_from_gist()
-    
-    # Assuming games are scheduled in the future, so we'll only post threads for games that are today or upcoming.
-    today = datetime.today().date()
+def construct_weekly_schedule_post(games, week):
+    # Get the start and end dates for the week's games
+    start_date = datetime.strptime(games[0]['Date & Time'].split(' ')[0], '%m/%d').date()
+    end_date = datetime.strptime(games[-1]['Date & Time'].split(' ')[0], '%m/%d').date()
 
-    for game in schedule:
-        game_date = datetime.strptime(game['Date & Time'], '%a, %B %dth at %I:%M %p %Z').date()
-        if game_date == today:
-            post_game_thread(
-                away_team=game['Away Team'],
-                home_team=game['Home Team'],
-                week=game['Week'],
-                date_time=game['Date & Time'],
-                stadium=game['Stadium'],
-                gamecast_link=game['Gamecast Link']
-            )
+    title = f"NFL 2023 Season - {week} Schedule - {start_date.strftime('%m/%d')} - {end_date.strftime('%m/%d')}"
+    
+    content = "Here is this week's schedule. What games are you planning on watching?\n\n"
+    content += "| Date & Time | Match Up | Live Thread | Gamecast |\n"
+    content += "| ----- | ----- | ----- | ----- |\n"
+    
+    for game in games:
+        game_date = datetime.strptime(game['Date & Time'].split(' ')[0], '%m/%d').date()
+        game_time = game['Date & Time'].split(' ')[2] + " " + game['Date & Time'].split(' ')[3]
+        content += f"| {game_date.strftime('%m/%d')} at {game_time} | {game['Away Team']} at {game['Home Team']} | Coming Soon | [Gamecast]({game['Gamecast Link']}) |\n"
+
+    content += "\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
+    
+    post_to_squabblr(title, content)
+
+def main():
+    # Assuming you'd like to run this weekly schedule creation as part of the main function
+    week = get_current_week()
+    games = fetch_games_for_week(week)
+    construct_weekly_schedule_post(games, week)
 
 if __name__ == "__main__":
     main()
