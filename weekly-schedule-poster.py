@@ -57,6 +57,10 @@ def construct_weekly_schedule_post(games, week):
     table_header = "| Date & Time | Match Up | Live Thread |\n| ----- | ----- | ----- |\n"
     table_content = ""
 
+    # Define away_team and home_team
+    away_team = game['Away Team']
+    home_team = game['Home Team']
+
     # Fetch the win-loss records
     away_team_wins, away_team_losses, away_team_ties = fetch_team_record(away_team)
     home_team_wins, home_team_losses, home_team_ties = fetch_team_record(home_team)
