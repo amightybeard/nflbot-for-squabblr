@@ -59,8 +59,11 @@ def fetch_games_for_week(week):
 
 def construct_weekly_schedule_post(games, week):
     # Get the start and end dates for the week's games
-    start_date = datetime.strptime(games[0]['Date & Time'].split(' ')[0], '%m/%d').date()
-    end_date = datetime.strptime(games[-1]['Date & Time'].split(' ')[0], '%m/%d').date()
+    start_date_str, _ = convert_datetime_to_natural_format(games[0]['Date & Time'])
+    end_date_str, _ = convert_datetime_to_natural_format(games[-1]['Date & Time'])
+    start_date = datetime.strptime(start_date_str, '%m/%d/%Y').date()
+    end_date = datetime.strptime(end_date_str, '%m/%d/%Y').date()
+
 
     title = f"NFL 2023 Season - {week} Schedule - {start_date.strftime('%m/%d')} - {end_date.strftime('%m/%d')}"
     
