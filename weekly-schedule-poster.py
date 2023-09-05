@@ -54,19 +54,46 @@ def fetch_games_for_week(week):
 def construct_weekly_schedule_post(games, week):
     """Construct and post the weekly schedule."""
     print("Constructing weekly schedule post...")
-    table_header = "| Date & Time | Match Up | Live Thread | Gamecast |\n| ----- | ----- | ----- | ----- |\n"
+    table_header = "| Date & Time | Match Up | Live Thread |\n| ----- | ----- | ----- |\n"
     table_content = ""
+
+    # Fetch the win-loss records
+    away_team_wins, away_team_losses, away_team_ties = fetch_team_record(away_team)
+    home_team_wins, home_team_losses, home_team_ties = fetch_team_record(home_team)
+
+    # Format the win-loss-tie records
+    away_team_record = f"{away_team_wins}-{away_team_losses}"
+    if away_team_ties != '0':
+        away_team_record += f"-{away_team_ties}"
     
+    home_team_record = f"{home_team_wins}-{home_team_losses}"
+    if home_team_ties != '0':
+        home_team_record += f"-{home_team_ties}"
+        
     for game in games:
         game_date_str, game_time_str = convert_datetime_to_natural_format(game['Date & Time'])
-        matchup = f"{game['Away Team']} at {game['Home Team']}"
-        table_content += f"| {game_date_str} at {game_time_str} | {matchup} | Coming Soon | [Gamecast]({game['Gamecast Link']}) |\n"
+        
+        # Fetch the win-loss records for away and home teams
+        away_team_wins, away_team_losses, away_team_ties = fetch_team_record(game['Away Team'])
+        home_team_wins, home_team_losses, home_team_ties = fetch_team_record(game['Home Team'])
+
+        # Format the win-loss-tie records for away and home teams
+        away_team_record = f"{away_team_wins}-{away_team_losses}"
+        if away_team_ties != '0':
+            away_team_record += f"-{away_team_ties}"
+    
+        home_team_record = f"{home_team_wins}-{home_team_losses}"
+        if home_team_ties != '0':
+            home_team_record += f"-{home_team_ties}"
+            
+        matchup = f"{game['Away Team']} ({away_team_record}) at {game['Home Team']} ({home_team_record})"
+        table_content += f"| {game_date_str} at {game_time_str} | {matchup} | Coming Soon |\n"
     
     start_date_str, _ = convert_datetime_to_natural_format(games[0]['Date & Time'])
     end_date_str, _ = convert_datetime_to_natural_format(games[-1]['Date & Time'])
     
-    title = f"NFL 2023 Season - Week {week} Schedule - {start_date_str}-{end_date_str.split('/')[-1]}"
-    content = f"Here is this week's schedule. What games are you planning on watching?\n\n{table_header}{table_content}\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
+    title = f"NFL 2023 Season - {week} Schedule - {start_date_str}-{end_date_str.split('/')[-1]}"
+    content = f"Here is this week's schedule. **What games are you planning on watching?**\n\n{table_header}{table_content}\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
 
     post_to_squabblr(title, content)
 
