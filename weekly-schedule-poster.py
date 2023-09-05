@@ -35,53 +35,26 @@ def convert_datetime_to_natural_format(dt_string):
     time_format = dt_obj.strftime('%I:%M%p ET')
 
     return date_format, time_format
-    
-def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_link):
-    headers = {
-        'authorization': 'Bearer ' + SQUABBLES_TOKEN
-    }
 
-    # Fetch the win-loss records
-    away_team_wins, away_team_losses, away_team_ties = fetch_team_record(away_team)
-    home_team_wins, home_team_losses, home_team_ties = fetch_team_record(home_team)
+def get_current_week():
+    schedule = fetch_schedule_from_gist()
+    today = datetime.today().date()
+    closest_date_diff = None
+    closest_week = None
 
-    # Format the win-loss-tie records
-    away_team_record = f"{away_team_wins}-{away_team_losses}"
-    if away_team_ties != '0':
-        away_team_record += f"-{away_team_ties}"
-    
-    home_team_record = f"{home_team_wins}-{home_team_losses}"
-    if home_team_ties != '0':
-        home_team_record += f"-{home_team_ties}"
+    for row in schedule:
+        game_date = datetime.strptime(row['Date & Time'].split(" ")[0], '%Y-%m-%d').date()
+        date_diff = (game_date - today).days
+        if date_diff >= 0 and (closest_date_diff is None or date_diff < closest_date_diff):
+            closest_date_diff = date_diff
+            closest_week = row['Week']
 
-    date_str, time_str = convert_datetime_to_natural_format(date_time)
+    return closest_week
 
-    title = f"[GameThread] {away_team} at {home_team} - {week} - {date_str} at {time_str}"
-
-    content = f"""##### {away_team} ({away_team_record}) at {home_team} ({home_team_record})
-
------
-
-- Kickoff: {time_str}
-- Location: {stadium}
-- [ESPN Gamecast]({gamecast_link})
-
-| Team | 1Q | 2Q | 3Q | 4Q | Final |
-|---|---|---|---|---|---|
-| **{home_team}** | 0 | 0 | 0 | 0 | 0 |
-| **{away_team}** | 0 | 0 | 0 | 0 | 0 |
-
------
-
-I am a bot. Post your feedback to /s/ModBot"""
-
-    resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "NFL",
-        "title": title,
-        "content": content
-    }, headers=headers)
-
-    return resp.json()
+def fetch_games_for_week(week):
+    schedule = fetch_schedule_from_gist()
+    games = [game for game in schedule if game['Week'] == week]
+    return games
 
 def construct_weekly_schedule_post(games, week):
     # Get the start and end dates for the week's games
@@ -90,7 +63,7 @@ def construct_weekly_schedule_post(games, week):
 
     title = f"NFL 2023 Season - {week} Schedule - {start_date.strftime('%m/%d')} - {end_date.strftime('%m/%d')}"
     
-    content = "Here is this week's schedule. What games are you planning on watching?\n\n"
+    content = "Here is this week's schedule. **What games are you planning on watching?**\n\n"
     content += "| Date & Time | Match Up | Live Thread | Gamecast |\n"
     content += "| ----- | ----- | ----- | ----- |\n"
     
@@ -101,7 +74,18 @@ def construct_weekly_schedule_post(games, week):
 
     content += "\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
     
-    post_to_squabblr(title, content)
+    headers = {
+        'authorization': 'Bearer ' + SQUABBLES_TOKEN
+    }
+    
+    resp = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "NFL",
+        "title": title,
+        "content": content
+    }, headers=headers)
+    
+    return resp.json()
+
 
 def main():
     # Assuming you'd like to run this weekly schedule creation as part of the main function
