@@ -58,37 +58,32 @@ def fetch_games_for_week(week):
     return games
 
 def construct_weekly_schedule_post(games, week):
-    # Get the start and end dates for the week's games
-    start_date_str, _ = convert_datetime_to_natural_format(games[0]['Date & Time'])
-    end_date_str, _ = convert_datetime_to_natural_format(games[-1]['Date & Time'])
-    start_date = datetime.strptime(start_date_str, '%m/%d/%Y').date()
-    end_date = datetime.strptime(end_date_str, '%m/%d/%Y').date()
-
-
-    title = f"NFL 2023 Season - {week} Schedule - {start_date.strftime('%m/%d')} - {end_date.strftime('%m/%d')}"
+        """Construct and post the weekly schedule."""
+        table_header = "| Date & Time | Match Up | Live Thread | Gamecast |\n| ----- | ----- | ----- | ----- |\n"
+        table_content = ""
+        
+        for game in games:
+            game_date_str, game_time_str = convert_datetime_to_natural_format(game['Date & Time'])
+            matchup = f"{game['Away Team']} at {game['Home Team']}"
+            table_content += f"| {game_date_str} at {game_time_str} | {matchup} | Coming Soon | [Gamecast]({game['Gamecast Link']}) |\n"
+        
+        start_date_str, _ = convert_datetime_to_natural_format(games[0]['Date & Time'])
+        end_date_str, _ = convert_datetime_to_natural_format(games[-1]['Date & Time'])
+        
+        title = f"NFL 2023 Season - Week {week} Schedule - {start_date_str}-{end_date_str.split('/')[-1]}"
+        content = f"Here is this week's schedule. What games are you planning on watching?\n\n{table_header}{table_content}\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
     
-    content = "Here is this week's schedule. **What games are you planning on watching?**\n\n"
-    content += "| Date & Time | Match Up | Live Thread | Gamecast |\n"
-    content += "| ----- | ----- | ----- | ----- |\n"
-    
-    for game in games:
-        game_date = datetime.strptime(game['Date & Time'].split(' ')[0], '%m/%d').date()
-        game_time = game['Date & Time'].split(' ')[2] + " " + game['Date & Time'].split(' ')[3]
-        content += f"| {game_date.strftime('%m/%d')} at {game_time} | {game['Away Team']} at {game['Home Team']} | Coming Soon | [Gamecast]({game['Gamecast Link']}) |\n"
-
-    content += "\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
-    
-    headers = {
-        'authorization': 'Bearer ' + SQUABBLES_TOKEN
-    }
-    
-    resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "NFL",
-        "title": title,
-        "content": content
-    }, headers=headers)
-    
-    return resp.json()
+        headers = {
+            'authorization': 'Bearer ' + SQUABBLES_TOKEN
+        }
+        
+        resp = requests.post('https://squabblr.co/api/new-post', data={
+            "community_name": "NFL",
+            "title": title,
+            "content": content
+        }, headers=headers)
+        
+        return resp.json()
 
 
 def main():
