@@ -43,7 +43,8 @@ def get_current_week():
     closest_week = None
 
     for row in schedule:
-        game_date = datetime.strptime(row['Date & Time'].split(" ")[0], '%Y-%m-%d').date()
+        game_date_str, _ = convert_datetime_to_natural_format(row['Date & Time'])
+        game_date = datetime.strptime(game_date_str, '%m/%d/%Y').date()
         date_diff = (game_date - today).days
         if date_diff >= 0 and (closest_date_diff is None or date_diff < closest_date_diff):
             closest_date_diff = date_diff
