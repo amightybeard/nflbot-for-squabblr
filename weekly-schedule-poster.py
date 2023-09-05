@@ -37,21 +37,14 @@ def convert_datetime_to_natural_format(dt_string):
 
     return date_format, time_format
 
-def get_current_week():
-    schedule = fetch_schedule_from_gist()
+def get_current_week(schedule):
+    """Determine the current week of the NFL season."""
+    print("Determining the current week...")
     today = datetime.today().date()
-    closest_date_diff = None
-    closest_week = None
-
-    for row in schedule:
-        game_date_str, _ = convert_datetime_to_natural_format(row['Date & Time'])
-        game_date = datetime.strptime(game_date_str, '%m/%d/%Y').date()
-        date_diff = (game_date - today).days
-        if date_diff >= 0 and (closest_date_diff is None or date_diff < closest_date_diff):
-            closest_date_diff = date_diff
-            closest_week = row['Week']
-
-    return closest_week
+    for game in schedule:
+        game_date = datetime.strptime(game['Date & Time'].split('T')[0], '%Y-%m-%d').date()
+        if game_date >= today:
+            return game['Week']
 
 def fetch_games_for_week(week):
     schedule = fetch_schedule_from_gist()
