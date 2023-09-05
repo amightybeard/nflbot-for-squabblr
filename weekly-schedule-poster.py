@@ -8,6 +8,7 @@ GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
 
 def fetch_schedule_from_gist():
     """Fetch the NFL schedule from the gist."""
+    print("Fetching schedule from gist...")
     gist_url = f"https://api.github.com/gists/{GIST_ID}"
     response = requests.get(gist_url)
     raw_csv = response.json()['files']['nfl-schedule.csv']['content']
@@ -59,6 +60,7 @@ def fetch_games_for_week(week):
 
 def construct_weekly_schedule_post(games, week):
     """Construct and post the weekly schedule."""
+    print("Constructing weekly schedule post...")
     table_header = "| Date & Time | Match Up | Live Thread | Gamecast |\n| ----- | ----- | ----- | ----- |\n"
     table_content = ""
     
@@ -73,23 +75,28 @@ def construct_weekly_schedule_post(games, week):
     title = f"NFL 2023 Season - Week {week} Schedule - {start_date_str}-{end_date_str.split('/')[-1]}"
     content = f"Here is this week's schedule. What games are you planning on watching?\n\n{table_header}{table_content}\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
 
+    post_to_squabblr(title, content)
+
+def post_to_squabblr(title, content):
+    """Post the content to Squabblr."""
+    print(f"Posting to Squabblr with title: {title}")
     headers = {
         'authorization': 'Bearer ' + SQUABBLES_TOKEN
     }
-    
     resp = requests.post('https://squabblr.co/api/new-post', data={
         "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
-    
-    return resp.json()
 
+    print(f"Post response: {resp.json()}")
 
 def main():
-    # Assuming you'd like to run this weekly schedule creation as part of the main function
-    week = get_current_week()
-    games = fetch_games_for_week(week)
+    schedule = fetch_schedule_from_gist()
+    week = get_current_week(schedule)
+    print(f"Current week: {week}")
+
+    games = [game for game in schedule if game['Week'] == week]
     construct_weekly_schedule_post(games, week)
 
 if __name__ == "__main__":
