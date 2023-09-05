@@ -1,8 +1,8 @@
 name: Weekly Schedule Poster
 
 on:
-  schedule:
-    - cron: '0 12 * * 3' # At 12:00 PM UTC (8am ET) every Wednesday
+  # schedule:
+  #  - cron: '0 12 * * 3' # At 12:00 PM UTC (8am ET) every Wednesday
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
