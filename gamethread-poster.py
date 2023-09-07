@@ -89,6 +89,9 @@ def main():
     # Assuming games are scheduled in the future, so we'll only post threads for games that are today or upcoming.
     today = datetime.today().date()
 
+    # Get the first game of the season (Week 1)
+    first_game = next(game for game in schedule if game['Week'] == 'Week 1')
+
     post_game_thread(
         away_team=first_game['Away Team'],
         home_team=first_game['Home Team'],
