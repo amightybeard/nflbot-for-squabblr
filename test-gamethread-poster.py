@@ -91,7 +91,7 @@ def main():
 
     for game in schedule:
         game_date = datetime.strptime(game['Date & Time'], '%a, %B %dth at %I:%M %p %Z').date()
-        if game_date >= today:
+        if game_date == today:
             post_game_thread(
                 away_team=game['Away Team'],
                 home_team=game['Home Team'],
