@@ -12,7 +12,7 @@ AFC,South,Indianapolis Colts,0,0,0,0.0
 AFC,South,Jacksonville Jaguars,0,0,0,0.0
 AFC,South,Tennessee Titans,0,0,0,0.0
 AFC,West,Denver Broncos,0,0,0,0.0
-AFC,West,Kansas City Chiefs,0,0,0,0.0
+AFC,West,Kansas City Chiefs,0,1,0,0.0
 AFC,West,Las Vegas Raiders,0,0,0,0.0
 AFC,West,Los Angeles Chargers,0,0,0,0.0
 NFC,East,Dallas Cowboys,0,0,0,0.0
@@ -20,7 +20,7 @@ NFC,East,New York Giants,0,0,0,0.0
 NFC,East,Philadelphia Eagles,0,0,0,0.0
 NFC,East,Washington Commanders,0,0,0,0.0
 NFC,North,Chicago Bears,0,0,0,0.0
-NFC,North,Detroit Lions,0,0,0,0.0
+NFC,North,Detroit Lions,1,0,0,100.0
 NFC,North,Green Bay Packers,0,0,0,0.0
 NFC,North,Minnesota Vikings,0,0,0,0.0
 NFC,South,Atlanta Falcons,0,0,0,0.0
