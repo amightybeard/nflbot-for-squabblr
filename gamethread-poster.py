@@ -83,6 +83,20 @@ I am a bot. Post your feedback to /s/ModBot"""
 
     return resp.json()
 
+def update_schedule_with_hash_id(schedule, game, hash_id):
+    for row in schedule:
+        if row['Gamecast Link'] == game['Gamecast Link']:
+            row['Squabblr Hash ID'] = hash_id
+            break
+
+    # Save the updated schedule back to CSV
+    with open('nfl-schedule.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Week', 'Date & Time', 'Stadium', 'Home Team', 'Away Team', 'Gamecast Link', 'Squabblr Hash ID']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in schedule:
+            writer.writerow(row)
+
 def main():
     schedule = fetch_schedule_from_gist()
     
@@ -100,6 +114,13 @@ def main():
                 stadium=game["Stadium"],
                 gamecast_link=game["Gamecast Link"]
             )
+            hash_id = response['hash_id']  # Assuming the response contains 'hash_id'
+        
+            # Update the local CSV with the hash_id
+            update_schedule_with_hash_id(schedule, game, hash_id)
+            
+            # Sync the updated CSV to the Gist
+            sync_csv_to_gist()  # This function will be responsible for updating the Gist with the latest CSV
 
 if __name__ == "__main__":
     main()
