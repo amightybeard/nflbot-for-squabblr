@@ -139,7 +139,15 @@ def main():
                 stadium=game["Stadium"],
                 gamecast_link=game["Gamecast Link"]
             )
-            hash_id = response['hash_id']  # Assuming the response contains 'hash_id'
+            response = post_game_thread(
+                away_team=game["Away Team"],
+                home_team=game["Home Team"],
+                week=game["Week"],
+                date_time=game["Date & Time"],
+                stadium=game["Stadium"],
+                gamecast_link=game["Gamecast Link"]
+            )
+            hash_id = response['hash_id']
         
             # Update the local CSV with the hash_id
             update_schedule_with_hash_id(schedule, game, hash_id)
