@@ -24,3 +24,4 @@ jobs:
       run: python gamethread-poster.py
       env:
         SQUABBLES_TOKEN: ${{ secrets.SQUABBLES_TOKEN }}
+        NFLBOT_WRITE_TO_GIST: ${{ secrets.NFLBOT_WRITE_TO_GIST }}  # Using the GitHub token from repository secrets
