@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
+GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
 
 def fetch_schedule_from_gist():
     """Fetch the NFL schedule from the gist."""
@@ -96,6 +97,30 @@ def update_schedule_with_hash_id(schedule, game, hash_id):
         writer.writeheader()
         for row in schedule:
             writer.writerow(row)
+
+def sync_csv_to_gist():
+    """Sync the updated local CSV to the Gist."""
+    gist_url = f"https://api.github.com/gists/{GIST_ID}"
+    
+    headers = {
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Content-Type': 'application/json',
+    }
+    
+    with open('nfl-schedule.csv', 'r') as csvfile:
+        csv_content = csvfile.read()
+    
+    data = {
+        "files": {
+            "nfl-schedule.csv": {
+                "content": csv_content
+            }
+        }
+    }
+    
+    response = requests.patch(gist_url, headers=headers, json=data)
+    if response.status_code != 200:
+        print(f"Failed to update Gist. Status code: {response.status_code}")
 
 def main():
     schedule = fetch_schedule_from_gist()
