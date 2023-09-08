@@ -129,7 +129,7 @@ def main():
     today = datetime.today().date()
 
     for game in schedule:
-        game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%M:%SZ').date()
+        game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
         if game_date == today:
             post_game_thread(
                 away_team=game["Away Team"],
