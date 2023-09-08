@@ -90,15 +90,15 @@ def main():
     today = datetime.today().date()
 
     for game in schedule:
-        game_date = datetime.strptime(game['Date & Time'], '%a, %B %dth at %I:%M %p %Z').date()
+        game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%M:%SZ').date()
         if game_date == today:
             post_game_thread(
-                away_team=first_game['Away Team'],
-                home_team=first_game['Home Team'],
-                week=first_game['Week'],
-                date_time=first_game['Date & Time'],
-                stadium=first_game['Stadium'],
-                gamecast_link=first_game['Gamecast Link']
+                away_team=game["Away Team"],
+                home_team=game["Home Team"],
+                week=game["Week"],
+                date_time=game["Date & Time"],
+                stadium=game["Stadium"],
+                gamecast_link=game["Gamecast Link"]
             )
 
 if __name__ == "__main__":
