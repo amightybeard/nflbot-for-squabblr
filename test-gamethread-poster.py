@@ -77,7 +77,7 @@ I am a bot. Post feedback on /s/ModBot.
 """
 
     resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "NFL",
+        "community_name": "Test",
         "title": title,
         "content": content
     }, headers=headers)
@@ -87,16 +87,19 @@ I am a bot. Post feedback on /s/ModBot.
 def main():
     schedule = fetch_schedule_from_gist()
 
-    # Get the first game of the season (Week 1)
-    first_game = next(game for game in schedule if game['Week'] == 'Week 1')
+    today = datetime.today().date()
 
-    post_game_thread(
-        away_team=first_game['Away Team'],
-        home_team=first_game['Home Team'],
-        week=first_game['Week'],
-        date_time=first_game['Date & Time'],
-        stadium=first_game['Stadium'],
-        gamecast_link=first_game['Gamecast Link']
+    for game in schedule:
+        game_date = datetime.strptime(game['Date & Time'], '%a, %B %dth at %I:%M %p %Z').date()
+        if game_date >= today:
+            post_game_thread(
+                away_team=game['Away Team'],
+                home_team=game['Home Team'],
+                week=game['Week'],
+                date_time=game['Date & Time'],
+                stadium=game['Stadium'],
+                gamecast_link=game['Gamecast Link']
+            )
     )
 
 if __name__ == "__main__":
