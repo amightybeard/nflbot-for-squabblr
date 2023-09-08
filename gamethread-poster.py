@@ -89,14 +89,6 @@ def main():
     # Assuming games are scheduled in the future, so we'll only post threads for games that are today or upcoming.
     today = datetime.today().date()
 
-    post_game_thread(
-        away_team=first_game['Away Team'],
-        home_team=first_game['Home Team'],
-        week=first_game['Week'],
-        date_time=first_game['Date & Time'],
-        stadium=first_game['Stadium'],
-        gamecast_link=first_game['Gamecast Link']
-    )
     for game in schedule:
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%M:%SZ').date()
         if game_date == today:
