@@ -33,7 +33,7 @@ def convert_datetime_to_natural_format(dt_string):
     
     # Extract date, time, and am/pm information
     date_format = dt_obj.strftime('%m/%d/%Y')
-    time_format = dt_obj.strftime('%I:%M%p ET')
+    time_format = dt_obj.strftime('%-I:%M%p ET')
 
     return date_format, time_format
     
