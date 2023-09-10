@@ -63,7 +63,7 @@ def extract_game_data(game_data):
     away_team_data = next(competitor for competitor in game_data['competitions'][0]['competitors'] if competitor['homeAway'] == 'away')
 
     # Extract Last Update
-    game_status_detail = game_data["status"]["detail"]
+    game_status_detail = game_data["status"]["type"]["detail"]
 
     # Extract scores
     home_team_score = home_team_data['score']
