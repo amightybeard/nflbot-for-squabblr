@@ -129,7 +129,7 @@ def sync_csv_to_gist():
     
     response = requests.patch(gist_url, headers=headers, json=data)
     if response.status_code != 200:
-        print(f"Failed to update Gist. Status code: {response.status_code}")
+        print(f"Failed to update Gist. Status code: {response.status_code}. Response text: {response.text}")
 
 def starts_within_next_4_hours(date_time_str):
     """Check if a game starts within the next 4 hours."""
