@@ -67,8 +67,8 @@ def extract_game_data(game_data):
     away_team_score = away_team_data['score']
 
     # Extract linescores
-    home_team_linescores = [item['value'] for item in home_team_data.get('linescores', [])]
-    away_team_linescores = [item['value'] for item in away_team_data.get('linescores', [])]
+    home_team_linescores = [int(item["value"]) for item in home_team_data["linescores"]]
+    away_team_linescores = [int(item["value"]) for item in away_team_data["linescores"]]
 
     # Pad linescores with zeros to ensure we have scores for 4 quarters
     while len(home_team_linescores) < 4:
