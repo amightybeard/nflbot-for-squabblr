@@ -3,7 +3,7 @@ name: Game Thread Updater
 on:
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
   # schedule:
-    # - cron: '0 22 * * 4' # 6pm ET on Thursda
+    # - cron: '10 * * * 4' # Update every 10 minutes on Sundays
 
 jobs:
   update-game-thread:
