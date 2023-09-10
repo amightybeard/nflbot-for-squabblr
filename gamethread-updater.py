@@ -61,7 +61,10 @@ def extract_game_data(game_data):
     """Extract relevant game data from the ESPN API response."""
     home_team_data = next(competitor for competitor in game_data['competitions'][0]['competitors'] if competitor['homeAway'] == 'home')
     away_team_data = next(competitor for competitor in game_data['competitions'][0]['competitors'] if competitor['homeAway'] == 'away')
-    
+
+    # Extract Last Update
+    game_status_detail = game_data["status"]["detail"]
+
     # Extract scores
     home_team_score = home_team_data['score']
     away_team_score = away_team_data['score']
@@ -80,7 +83,8 @@ def extract_game_data(game_data):
         'home_team_score': home_team_score,
         'away_team_score': away_team_score,
         'home_team_linescores': home_team_linescores,
-        'away_team_linescores': away_team_linescores
+        'away_team_linescores': away_team_linescores,
+        "game_status_detail": game_status_detail
     }
 
 
@@ -124,6 +128,7 @@ def update_game_thread(game, game_data_from_api):
 | **{game['Home Team']}** | {game_data['home_team_linescores'][0]} | {game_data['home_team_linescores'][1]} | {game_data['home_team_linescores'][2]} | {game_data['home_team_linescores'][3]} | {game_data['home_team_score']} |
 | **{game['Away Team']}** | {game_data['away_team_linescores'][0]} | {game_data['away_team_linescores'][1]} | {game_data['away_team_linescores'][2]} | {game_data['away_team_linescores'][3]} | {game_data['away_team_score']} |
 
+*Last Updated: {game_data['game_status_detail']}*
 -----
 
 I am a bot. Post your feedback to /s/ModBot"""
