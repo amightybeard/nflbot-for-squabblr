@@ -76,22 +76,25 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 -----
 
 I am a bot. Post your feedback to /s/ModBot"""
-    try:
-        resp = requests.post('https://squabblr.co/api/new-post', data={
-            "community_name": "Test",
-            "title": title,
-            "content": content
-        }, headers=headers)
-        resp_data = resp.json()
-        if resp.status_code == 200 and 'data' in resp_data and len(resp_data['data']) > 0:
+    resp = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "Test",
+        "title": title,
+        "content": content
+    }, headers=headers)
+    
+    resp_data = resp.json()
+
+    # Check for HTTP success
+    if resp.status_code == 200:
+        if 'data' in resp_data and len(resp_data['data']) > 0:
             return resp_data['data'][0]
         else:
-            print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
+            print(f"Unexpected response structure after posting game thread for {away_team} at {home_team}. Response: {resp.text}")
             return None
-    except requests.RequestException as e:
-        print(f"Failed to post game thread for {away_team} at {home_team}. Error: {e}")
+    else:
+        print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
         return None
-
+        
 def update_schedule_with_hash_id(schedule, game, hash_id):
     for row in schedule:
         if row['Gamecast Link'] == game['Gamecast Link']:
