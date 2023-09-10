@@ -79,7 +79,7 @@ def update_game_thread(game, game_data_from_api):
     - game: A dictionary containing game details from the CSV file.
     - game_data_from_api: The specific game data extracted from the ESPN API.
     """
-
+    
     # Extract game data using the helper function
     game_data = extract_game_data(game_data_from_api)
 
@@ -131,33 +131,39 @@ I am a bot. Post your feedback to /s/ModBot"""
     except requests.RequestException as e:
         print(f"Failed to update game thread for {game['Away Team']} at {game['Home Team']}. Error: {e}")
 
-
 def main():
     schedule = fetch_schedule_from_gist()
     games_to_update = filter_games_for_update(schedule)
     scoreboard_data = fetch_scoreboard_data()
 
     for game in games_to_update:
-        game_id = game["Gamecast Link"].split("gameId=")[-1]
-        game_data = next((event for event in scoreboard_data["events"] if event["id"] == game_id), None)
+        game_id_from_csv = game["Gamecast Link"].split("gameId=")[-1]
+        
+        # Log the game ID from the CSV
+        print(f"Searching for game ID {game_id_from_csv} from CSV for game: {game['Away Team']} at {game['Home Team']}")
+        
+        game_data = None
+        for event in scoreboard_data["events"]:
+            # Log the game ID from the API
+            print(f"Checking against game ID {event['id']} from API")
+            
+            if str(event['id']) == game_id_from_csv:
+                game_data = event
+                print(f"Match found for game ID {game_id_from_csv}.")
+                break
 
         if not game_data:
             print(f"Could not find data for game: {game['Away Team']} at {game['Home Team']}")
             continue
 
-        # Extract the required data from the game_data (like home_team_score, away_team_score, etc.)
-        # Construct the updated game thread content
-        content = "..."  # The updated content for the game thread
-
         # Update the game thread
-        if update_game_thread(game["Squabblr Hash ID"], content):
+        if update_game_thread(game, game_data):
             print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
             print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
 
         # Sleep to avoid hitting rate limits
-        time.sleep(10)
-
+        time.sleep(30)
 
 if __name__ == "__main__":
     main()
