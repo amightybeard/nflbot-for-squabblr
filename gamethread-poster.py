@@ -177,7 +177,10 @@ def main():
                 print(f"Unexpected response after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
 
             # Sleep for 30 seconds between operations to ensure sequential execution
+            print(f"Starting delay at {datetime.now().time()}")
             time.sleep(30)
+            print(f"Ending delay at {datetime.now().time()}")
+
             
 if __name__ == "__main__":
     main()
