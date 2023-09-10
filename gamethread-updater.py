@@ -25,6 +25,19 @@ def fetch_team_record(team_name):
                 return row['Wins'], row['Losses'], row['Ties']
     return '0', '0', '0'  # default if not found
 
+def convert_datetime_to_natural_format(dt_string):
+    # Convert the provided string into a datetime object
+    dt_obj = datetime.strptime(dt_string, '%Y-%m-%dT%H:%MZ')
+    
+    # Adjust for Eastern Time (ET is UTC-4, but this doesn't account for daylight saving)
+    dt_obj = dt_obj - timedelta(hours=4)
+    
+    # Extract date, time, and am/pm information
+    date_format = dt_obj.strftime('%m/%d/%Y')
+    time_format = dt_obj.strftime('%-I:%M%p ET')
+
+    return date_format, time_format
+    
 def filter_games_for_update(schedule):
     today = datetime.today().date()
     games_for_update = []
