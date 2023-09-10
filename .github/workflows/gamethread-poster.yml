@@ -2,7 +2,6 @@ name: Game Thread Poster
 
 on:
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
-  on:
   schedule:
     - cron: '0 22 * * 4'  # 6pm ET on Thursday
     - cron: '0 15 * * 0' # 11am ET on Sunday
