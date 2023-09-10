@@ -132,6 +132,7 @@ def sync_csv_to_gist():
     response = requests.patch(gist_url, headers=headers, json=data)
     if response.status_code != 200:
         print(f"Failed to update Gist. Status code: {response.status_code}. Response: {response.text}")
+    return response.status_code
 
 def starts_within_next_4_hours(date_time_str):
     """Check if a game starts within the next 4 hours."""
@@ -162,7 +163,7 @@ def main():
             )
             
             # Check if response exists and contains expected keys
-            if response and 'data' in response and 'hash_id' in response['data']:
+            if response and 'data' in response and len(response['data']) > 0 and 'hash_id' in response['data'][0]:
                 hash_id = response['data']['hash_id']
                 
                 # Update the local CSV with the hash_id
