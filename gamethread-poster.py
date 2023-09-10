@@ -84,10 +84,10 @@ I am a bot. Post your feedback to /s/ModBot"""
             "content": content
         }, headers=headers)
         resp.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
-        if 'hash_id' in resp.json():
-            return resp.json()
+        if resp.status_code == 200 and 'post' in resp.json() and 'hash_id' in resp.json()['post']:
+            return resp.json()['post']  # Return the 'post' section directly which contains the hash_id
         else:
-            print(f"Unexpected response structure for {away_team} at {home_team}. Response: {resp.text}")
+            print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
             return None
     except requests.RequestException as e:
         print(f"Failed to post game thread for {away_team} at {home_team}. Error: {e}")
@@ -173,8 +173,8 @@ def main():
             else:
                 print(f"Unexpected response after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
 
-            # Sleep for 10 seconds between operations to ensure sequential execution
-            time.sleep(10)
+            # Sleep for 30 seconds between operations to ensure sequential execution
+            time.sleep(30)
             
 if __name__ == "__main__":
     main()
