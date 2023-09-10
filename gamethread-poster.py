@@ -68,7 +68,7 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 - Location: {stadium}
 - [ESPN Gamecast]({gamecast_link})
 
-| Team | 1Q | 2Q | 3Q | 4Q | Final |
+| Team | 1Q | 2Q | 3Q | 4Q | Total |
 |---|---|---|---|---|---|
 | **{home_team}** | 0 | 0 | 0 | 0 | 0 |
 | **{away_team}** | 0 | 0 | 0 | 0 | 0 |
@@ -77,15 +77,20 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
 I am a bot. Post your feedback to /s/ModBot"""
 
-    resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "Test",
-        "title": title,
-        "content": content
-    }, headers=headers)
-    if resp.status_code == 200 and 'hash_id' in resp.json():
-        return resp.json()
-    else:
-        print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
+    try:
+        resp = requests.post('https://squabblr.co/api/new-post', data={
+            "community_name": "Test",
+            "title": title,
+            "content": content
+        }, headers=headers)
+        resp.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
+        if 'hash_id' in resp.json():
+            return resp.json()
+        else:
+            print(f"Unexpected response structure for {away_team} at {home_team}. Response: {resp.text}")
+            return None
+    except requests.RequestException as e:
+        print(f"Failed to post game thread for {away_team} at {home_team}. Error: {e}")
         return None
 
 def update_schedule_with_hash_id(schedule, game, hash_id):
@@ -154,8 +159,8 @@ def main():
                 gamecast_link=game["Gamecast Link"]
             )
             
-            # Check the response for the hash_id
-            if 'post' in response and 'hash_id' in response['post']:
+            # Check if response exists and contains expected keys
+            if response and 'post' in response and 'hash_id' in response['post']:
                 hash_id = response['post']['hash_id']
                 
                 # Update the local CSV with the hash_id
@@ -166,7 +171,7 @@ def main():
                 if gist_status != 200:
                     print(f"Failed to update Gist for game {game['Away Team']} at {game['Home Team']} with status code: {gist_status}")
             else:
-                print(f"Failed to retrieve hash_id after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
+                print(f"Unexpected response after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
 
             # Sleep for 10 seconds between operations to ensure sequential execution
             time.sleep(10)
