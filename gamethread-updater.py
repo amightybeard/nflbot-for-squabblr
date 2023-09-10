@@ -137,7 +137,7 @@ def main():
     scoreboard_data = fetch_scoreboard_data()
 
     for game in games_to_update:
-        game_id_from_csv = game["Gamecast Link"].split("gameId=")[-1]
+        game_id_from_csv = game["Gamecast Link"].rsplit("/", 1)[-1]
         
         # Log the game ID from the CSV
         print(f"Searching for game ID {game_id_from_csv} from CSV for game: {game['Away Team']} at {game['Home Team']}")
