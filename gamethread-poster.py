@@ -77,7 +77,7 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 I am a bot. Post your feedback to /s/ModBot"""
 
     resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "Test",
+        "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
