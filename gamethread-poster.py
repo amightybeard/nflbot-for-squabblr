@@ -81,8 +81,11 @@ I am a bot. Post your feedback to /s/ModBot"""
         "title": title,
         "content": content
     }, headers=headers)
-
-    return resp.json()
+    if resp.status_code == 200 and 'hash_id' in resp.json():
+        return resp.json()
+    else:
+        print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
+        return None
 
 def update_schedule_with_hash_id(schedule, game, hash_id):
     for row in schedule:
@@ -136,6 +139,7 @@ def main():
     today = datetime.today().date()
 
     for game in schedule:
+        print(f"Processing game: {game['Away Team']} at {game['Home Team']}")
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
         if game_date == today and starts_within_next_4_hours(game["Date & Time"]):
             post_game_thread(
@@ -161,6 +165,7 @@ def main():
             
             # Sync the updated CSV to the Gist
             sync_csv_to_gist()  # This function will be responsible for updating the Gist with the latest CSV
-
+            
+        print(f"Posted game thread for {game['Away Team']} at {game['Home Team']} with hash_id: {hash_id}")
 if __name__ == "__main__":
     main()
