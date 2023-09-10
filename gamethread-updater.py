@@ -129,7 +129,7 @@ def update_game_thread(game, game_data_from_api):
 I am a bot. Post your feedback to /s/ModBot"""
 
     # Use the Squabblr API to update the game thread content
-    update_url = f"https://squabblr.co/api/user/nflbot/post/{game['Squabblr Hash ID']}"
+    update_url = f"https://squabblr.co/api/posts/{game['Squabblr Hash ID']}"
     headers = {
         'authorization': 'Bearer ' + SQUABBLES_TOKEN
     }
