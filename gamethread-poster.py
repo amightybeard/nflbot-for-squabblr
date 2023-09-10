@@ -141,15 +141,8 @@ def main():
     for game in schedule:
         print(f"Processing game: {game['Away Team']} at {game['Home Team']}")
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
+        
         if game_date == today and starts_within_next_4_hours(game["Date & Time"]):
-            post_game_thread(
-                away_team=game["Away Team"],
-                home_team=game["Home Team"],
-                week=game["Week"],
-                date_time=game["Date & Time"],
-                stadium=game["Stadium"],
-                gamecast_link=game["Gamecast Link"]
-            )
             response = post_game_thread(
                 away_team=game["Away Team"],
                 home_team=game["Home Team"],
@@ -158,14 +151,23 @@ def main():
                 stadium=game["Stadium"],
                 gamecast_link=game["Gamecast Link"]
             )
-            hash_id = response['hash_id']
-        
-            # Update the local CSV with the hash_id
-            update_schedule_with_hash_id(schedule, game, hash_id)
+
+            # Check if post_game_thread was successful
+            if response:
+                hash_id = response.get('hash_id')
+                
+                if hash_id:
+                    print(f"Posted game thread for {game['Away Team']} at {game['Home Team']} with hash_id: {hash_id}")
+                    
+                    # Update the local CSV with the hash_id
+                    update_schedule_with_hash_id(schedule, game, hash_id)
+                    
+                    # Sync the updated CSV to the Gist
+                    sync_csv_to_gist()  # This function will be responsible for updating the Gist with the latest CSV
+                else:
+                    print(f"Failed to retrieve hash_id after posting game thread for {game['Away Team']} at {game['Home Team']}")
+            else:
+                print(f"Failed to post game thread for {game['Away Team']} at {game['Home Team']}")
             
-            # Sync the updated CSV to the Gist
-            sync_csv_to_gist()  # This function will be responsible for updating the Gist with the latest CSV
-            
-        print(f"Posted game thread for {game['Away Team']} at {game['Home Team']} with hash_id: {hash_id}")
 if __name__ == "__main__":
     main()
