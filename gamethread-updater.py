@@ -122,13 +122,13 @@ def update_game_thread(game, game_data_from_api):
 - Kickoff: {time_str}
 - Location: {game['Stadium']}
 - [ESPN Gamecast]({game['Gamecast Link']})
+- Last Updated: {game_data['game_status_detail']}
 
 | Team | 1Q | 2Q | 3Q | 4Q | Total |
 |---|---|---|---|---|---|
 | **{game['Home Team']}** | {game_data['home_team_linescores'][0]} | {game_data['home_team_linescores'][1]} | {game_data['home_team_linescores'][2]} | {game_data['home_team_linescores'][3]} | {game_data['home_team_score']} |
 | **{game['Away Team']}** | {game_data['away_team_linescores'][0]} | {game_data['away_team_linescores'][1]} | {game_data['away_team_linescores'][2]} | {game_data['away_team_linescores'][3]} | {game_data['away_team_score']} |
 
-*Last Updated: {game_data['game_status_detail']}*
 -----
 
 I am a bot. Post your feedback to /s/ModBot"""
