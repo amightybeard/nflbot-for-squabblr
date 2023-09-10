@@ -76,17 +76,15 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 -----
 
 I am a bot. Post your feedback to /s/ModBot"""
-
     try:
         resp = requests.post('https://squabblr.co/api/new-post', data={
             "community_name": "Test",
             "title": title,
             "content": content
         }, headers=headers)
-        resp.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
-        response_json = resp.json()
-        if resp.status_code == 200 and 'data' in response_json and response_json['data'] and 'hash_id' in response_json['data'][0]:
-            return response_json['data'][0]
+        resp_data = resp.json()
+        if resp.status_code == 200 and 'data' in resp_data and len(resp_data['data']) > 0:
+            return resp_data['data'][0]
         else:
             print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
             return None
@@ -130,7 +128,7 @@ def sync_csv_to_gist():
     
     response = requests.patch(gist_url, headers=headers, json=data)
     if response.status_code != 200:
-        print(f"Failed to update Gist. Status code: {response.status_code}. Response JSON: {response.json()}")
+        print(f"Failed to update Gist. Status code: {response.status_code}. Response: {response.text}")
 
 def starts_within_next_4_hours(date_time_str):
     """Check if a game starts within the next 4 hours."""
@@ -161,8 +159,8 @@ def main():
             )
             
             # Check if response exists and contains expected keys
-            if response and 'post' in response and 'hash_id' in response['post']:
-                hash_id = response['post']['hash_id']
+            if response and 'data' in response and 'hash_id' in response['data']:
+                hash_id = response['data']['hash_id']
                 
                 # Update the local CSV with the hash_id
                 update_schedule_with_hash_id(schedule, game, hash_id)
