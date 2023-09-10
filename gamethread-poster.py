@@ -2,6 +2,7 @@ import requests
 import csv
 import os
 from datetime import datetime, timedelta
+import time
 
 SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
@@ -132,6 +133,8 @@ def starts_within_next_4_hours(date_time_str):
     time_difference = game_time - current_time
     return 0 <= time_difference.total_seconds() <= 4 * 60 * 60  # 4 hours in seconds
 
+import time
+
 def main():
     schedule = fetch_schedule_from_gist()
     
@@ -141,7 +144,6 @@ def main():
     for game in schedule:
         print(f"Processing game: {game['Away Team']} at {game['Home Team']}")
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
-        
         if game_date == today and starts_within_next_4_hours(game["Date & Time"]):
             response = post_game_thread(
                 away_team=game["Away Team"],
@@ -151,23 +153,23 @@ def main():
                 stadium=game["Stadium"],
                 gamecast_link=game["Gamecast Link"]
             )
-
-            # Check if post_game_thread was successful
-            if response:
-                hash_id = response.get('hash_id')
+            
+            # Check the response for the hash_id
+            if 'post' in response and 'hash_id' in response['post']:
+                hash_id = response['post']['hash_id']
                 
-                if hash_id:
-                    print(f"Posted game thread for {game['Away Team']} at {game['Home Team']} with hash_id: {hash_id}")
-                    
-                    # Update the local CSV with the hash_id
-                    update_schedule_with_hash_id(schedule, game, hash_id)
-                    
-                    # Sync the updated CSV to the Gist
-                    sync_csv_to_gist()  # This function will be responsible for updating the Gist with the latest CSV
-                else:
-                    print(f"Failed to retrieve hash_id after posting game thread for {game['Away Team']} at {game['Home Team']}")
+                # Update the local CSV with the hash_id
+                update_schedule_with_hash_id(schedule, game, hash_id)
+                
+                # Sync the updated CSV to the Gist and check for failures
+                gist_status = sync_csv_to_gist()
+                if gist_status != 200:
+                    print(f"Failed to update Gist for game {game['Away Team']} at {game['Home Team']} with status code: {gist_status}")
             else:
-                print(f"Failed to post game thread for {game['Away Team']} at {game['Home Team']}")
+                print(f"Failed to retrieve hash_id after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
+
+            # Sleep for 10 seconds between operations to ensure sequential execution
+            time.sleep(10)
             
 if __name__ == "__main__":
     main()
