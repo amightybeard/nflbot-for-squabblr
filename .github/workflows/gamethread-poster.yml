@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: '0 22 * * 4' # 6pm ET on Thursday
     - cron: '0 15 * * 0' # 11am ET on Sunday
-    - cron: '0 19 * * 0' # 2pm ET on Sunday
+    - cron: '15 19 * * 0' # 3:15pm ET on Sunday
     - cron: '0 22 * * 0' # 6pm ET on Sunday
     - cron: '0 22 * * 1' # 6pm ET on Monday
 
