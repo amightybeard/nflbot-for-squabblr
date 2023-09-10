@@ -84,8 +84,9 @@ I am a bot. Post your feedback to /s/ModBot"""
             "content": content
         }, headers=headers)
         resp.raise_for_status()  # Raises an HTTPError if the HTTP request returned an unsuccessful status code
-        if resp.status_code == 200 and 'post' in resp.json() and 'hash_id' in resp.json()['post']:
-            return resp.json()['post']  # Return the 'post' section directly which contains the hash_id
+        response_json = resp.json()
+        if resp.status_code == 200 and 'data' in response_json and response_json['data'] and 'hash_id' in response_json['data'][0]:
+            return response_json['data'][0]
         else:
             print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
             return None
@@ -129,7 +130,7 @@ def sync_csv_to_gist():
     
     response = requests.patch(gist_url, headers=headers, json=data)
     if response.status_code != 200:
-        print(f"Failed to update Gist. Status code: {response.status_code}. Response text: {response.text}")
+        print(f"Failed to update Gist. Status code: {response.status_code}. Response JSON: {response.json()}")
 
 def starts_within_next_4_hours(date_time_str):
     """Check if a game starts within the next 4 hours."""
