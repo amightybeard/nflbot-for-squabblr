@@ -124,7 +124,7 @@ def sync_csv_to_gist():
 
 def starts_within_next_4_hours(date_time_str):
     """Check if a game starts within the next 4 hours."""
-    game_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%M:%SZ')
+    game_time = datetime.strptime(date_time_str, '%Y-%m-%dT%H:%MZ')
     current_time = datetime.utcnow()
     time_difference = game_time - current_time
     return 0 <= time_difference.total_seconds() <= 4 * 60 * 60  # 4 hours in seconds
@@ -136,7 +136,7 @@ def main():
     today = datetime.today().date()
 
     for game in schedule:
-        game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%M:%SZ').date()
+        game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
         if game_date == today and starts_within_next_4_hours(game["Date & Time"]):
             post_game_thread(
                 away_team=game["Away Team"],
