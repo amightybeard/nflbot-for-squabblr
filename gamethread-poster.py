@@ -77,7 +77,7 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
 I am a bot. Post your feedback to /s/ModBot"""
     resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "Test",
+        "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
@@ -165,14 +165,18 @@ def main():
             # Check if response exists and contains expected keys
             if response and 'data' in response and len(response['data']) > 0 and 'hash_id' in response['data'][0]:
                 hash_id = response['data']['hash_id']
+                print(f"Successfully fetched hash_id: {hash_id} for game {game['Away Team']} at {game['Home Team']}")
                 
-                # Update the local CSV with the hash_id
+                print("Updating local CSV with hash_id...")
                 update_schedule_with_hash_id(schedule, game, hash_id)
+                print("Local CSV updated.")
                 
-                # Sync the updated CSV to the Gist and check for failures
+                print("Attempting to sync updated CSV to the Gist...")
                 gist_status = sync_csv_to_gist()
                 if gist_status != 200:
                     print(f"Failed to update Gist for game {game['Away Team']} at {game['Home Team']} with status code: {gist_status}")
+                else:
+                    print(f"Successfully updated Gist for game {game['Away Team']} at {game['Home Team']}")
             else:
                 print(f"Unexpected response after posting game thread for {game['Away Team']} at {game['Home Team']}. Response: {response}")
 
