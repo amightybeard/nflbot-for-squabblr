@@ -178,7 +178,15 @@ def main():
             )
 
             try:
-                hash_id, title, content = post_game_thread(game, game_data)
+                away_team = game['Away Team']
+                home_team = game['Home Team']
+                week = game['Week']
+                date_time = game['Date & Time']
+                stadium = game['Stadium']
+                gamecast_link = game['Gamecast Link']
+                
+                hash_id, title, content = post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_link)
+                
                 resp = requests.post('https://squabblr.co/api/new-post', data={
                     "community_name": "Test",
                     "title": title,
