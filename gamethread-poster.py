@@ -154,7 +154,7 @@ def main():
     for game in schedule:
         print(f"Processing game: {game['Away Team']} at {game['Home Team']}")
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
-        if game_date == starts_within_next_4_hours(game["Date & Time"]):
+        if starts_within_next_4_hours(game["Date & Time"]):
             response = post_game_thread(
                 away_team=game["Away Team"],
                 home_team=game["Home Team"],
