@@ -22,38 +22,44 @@ def fetch_nfl_schedule_for_week(week_number):
                 'Stadium': game['competitions'][0]['venue']['fullName'],
                 'Gamecast Link': game['links'][0]['href'],
                 'Home Team': game['name'].split(" at ")[1],
-                'Away Team': game['name'].split(" at ")[0]
+                'Away Team': game['name'].split(" at ")[0],
+                'Home Team Short': home_team_data["team"]["abbreviation"],
+                'Away Team Short': away_team_data["team"]["abbreviation"]
             }
             games.append(game_details)
     
     return games
 
 def update_gist_with_schedule(games):
-    # Convert the games list to CSV format
-    csv_data = "Week,Date & Time,Stadium,Home Team,Away Team,Gamecast Link\n"
-    for game in games:
-        csv_data += f"{game['Week']},{game['Date & Time']},{game['Stadium']},{game['Home Team']},{game['Away Team']},{game['Gamecast Link']}\n"
-    
-    # Define the API URL for the Gist
+    """Update the Gist with the fetched schedule."""
     gist_url = f"https://api.github.com/gists/{GIST_ID}"
     
-    # Define the headers, including authentication
     headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Content-Type": "application/json"
+        'Authorization': f'token {GITHUB_TOKEN}',
+        'Content-Type': 'application/json',
     }
+
+    # Convert games list to CSV format
+    output = io.StringIO()
+    fieldnames = ['Week', 'Date & Time', 'Stadium', 'Home Team', 'Away Team', 'Home Team Short', 'Away Team Short', 'Gamecast Link', 'Squabblr Hash ID', 'Status']
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+    for game in games:
+        writer.writerow(game)
     
-    # Define the payload
-    payload = {
+    csv_content = output.getvalue()
+
+    data = {
         "files": {
             "nfl-schedule.csv": {
-                "content": csv_data
+                "content": csv_content
             }
         }
     }
     
-    # Make the request to update the gist
-    response = requests.patch(gist_url, headers=headers, json=payload)
+    response = requests.patch(gist_url, headers=headers, json=data)
+    if response.status_code != 200:
+        print(f"Failed to update Gist. Status code: {response.status_code}. Response: {response.text}")
     return response.status_code
 
 def main():
