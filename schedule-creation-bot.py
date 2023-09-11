@@ -2,6 +2,7 @@ import requests
 import csv
 import os
 import json
+import io
 
 GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
 GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
