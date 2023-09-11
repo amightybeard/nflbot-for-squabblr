@@ -119,6 +119,65 @@ def update_schedule_with_status(gamecast_link, status, home_team_short, away_tea
         writer.writeheader()
         for game in schedule:
             writer.writerow(game)
+
+def format_game_stats(data, home_shortname, away_shortname):
+    """Format game stats from the provided data."""
+    
+    # Extract game stats for both teams
+    teams_data = data["gamepackageJSON"]["boxscore"]["teams"]
+    home_data = next(team for team in teams_data if team["team"]["abbreviation"] == home_shortname)
+    away_data = next(team for team in teams_data if team["team"]["abbreviation"] == away_shortname)
+    
+    # Define a function to extract stats by label
+    def get_stat_by_label(team_data, label):
+        return next(stat["displayValue"] for stat in team_data["statistics"] if stat["label"] == label)
+    
+    # Extract necessary stats
+    labels = ["1st Downs", "Total Plays", "Passing Yards", "Rushing Yards", "Penalties", 
+              "Turnovers", "Fumbles Lost", "Interceptions Thrown", "Possession"]
+    home_stats = {label: get_stat_by_label(home_data, label) for label in labels}
+    away_stats = {label: get_stat_by_label(away_data, label) for label in labels}
+    
+    # Format the table
+    stats_content = "#### Game Stats\n"
+    stats_content += f"| | {home_shortname} | {away_shortname} |\n"
+    stats_content += "| --- | --- | --- |\n"
+    for label in labels:
+        formatted_label = label if "Thrown" not in label else "Interceptions"  # Simplify "Interceptions Thrown"
+        stats_content += f"| {formatted_label} | {home_stats[label]} | {away_stats[label]} |\n"
+    
+    return stats_content
+
+def format_game_leaders(data, home_shortname, away_shortname):
+    """Format game leaders from the provided data."""
+    
+    leaders_data = data["gamepackageJSON"]["boxscore"]["leaders"]
+    
+    # Define a function to extract leader details by category
+    def get_leader_details(category_name):
+        category_data = next(item for item in leaders_data if item["name"] == category_name)["leaders"]
+        home_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == home_shortname)
+        away_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == away_shortname)
+        return home_leader, away_leader
+    
+    # Extract passing, rushing, and receiving leaders
+    passing_home, passing_away = get_leader_details("passingYards")
+    rushing_home, rushing_away = get_leader_details("rushingYards")
+    receiving_home, receiving_away = get_leader_details("receivingYards")
+    
+    # Format the table
+    leaders_content = "#### Game Leaders\n"
+    
+    for category, home_leader, away_leader in [("Passing", passing_home, passing_away), 
+                                               ("Rushing", rushing_home, rushing_away), 
+                                               ("Receiving", receiving_home, receiving_away)]:
+        leaders_content += f"**{category}**\n"
+        leaders_content += f"| {home_shortname} | {away_shortname} |\n"
+        leaders_content += "| --- | --- |\n"
+        leaders_content += f"| **{home_leader['athlete']['displayName']}** - {home_leader['displayValue']} |"
+        leaders_content += f" **{away_leader['athlete']['displayName']}** - {away_leader['displayValue']} |\n\n"
+    
+    return leaders_content
     
 def update_game_thread(game, game_data_from_api):
     """
@@ -134,7 +193,7 @@ def update_game_thread(game, game_data_from_api):
     away_team_shortname = game['Away Team Short']
 
     # Extract the relevant game data
-    game_data = extract_game_data(game_data_from_api, home_team_shortname, away_team_shortname)
+    game_data = extract_game_data(game_data_from_api)
 
     # Fetch the win-loss records (assuming you want to keep this from the previous code)
     away_team_wins, away_team_losses, away_team_ties = fetch_team_record(game["Away Team"])
@@ -180,22 +239,21 @@ def update_game_thread(game, game_data_from_api):
 
 I am a bot. Post your feedback to /s/ModBot"""
     
-    # Extract the game status
-    game_status = game_data_from_api["status"]["type"]["name"]
-    if game["Status"] != game_status:
-        # Update the local CSV with the new status
-        update_schedule_with_status(game["Gamecast Link"], game_status)
-        # Sync the updated CSV to the Gist
-        sync_csv_to_gist()
+    # Construct the game stats content for completed games
+    game_stats_content = ""
+    game_leaders_content = ""
+    if game["Status"] == "STATUS_FINAL":
+        game_stats_content = format_game_stats(matchup_data_from_api, home_team_shortname, away_team_shortname)
+        game_leaders_content = format_game_leaders(matchup_data_from_api, home_team_shortname, away_team_shortname)
 
-    # If the game is complete, append the additional data
-    if game_status == "STATUS_FINAL" and "Game Stats" not in game["content"]:
-        # Fetch additional data from the new API endpoint
-        matchup_data = fetch_matchup_data(game["Gamecast Link"].split("gameId=")[-1])
-        # Extract and format the game stats and leaders
-        game_stats_content, game_leaders_content = extract_and_format_additional_data(matchup_data)
-        # Append this data to the main content
-        content += f"\n\n{game_stats_content}\n\n{game_leaders_content}"
+    # Construct the full game thread content using the existing game thread content and appending the new data
+    game_thread_content = construct_game_thread_content(game, extracted_game_data)
+    
+    if game_stats_content:
+        game_thread_content += "\n\n" + game_stats_content
+    
+    if game_leaders_content:
+        game_thread_content += "\n\n" + game_leaders_content
 
     # Use the Squabblr API to update the game thread content
     update_url = f"https://squabblr.co/api/posts/{game['Squabblr Hash ID']}"
@@ -238,8 +296,13 @@ def main():
             print(f"Could not find data for game: {game['Away Team']} at {game['Home Team']}")
             continue
 
+        # If game is final, fetch additional matchup data for game stats and leaders
+        matchup_data_from_api = None
+        if game["Status"] == "STATUS_FINAL":
+            matchup_data_from_api = fetch_matchup_data(game_id_from_csv)
+        
         # Update the game thread
-        if update_game_thread(game, game_data):
+        if update_game_thread(game, game_data, matchup_data_from_api):
             print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
             print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
