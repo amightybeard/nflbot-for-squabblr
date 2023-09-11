@@ -16,13 +16,16 @@ def fetch_nfl_schedule_for_week(week_number):
     games = []
     for date, game_data in schedule_data.items():
         for game in game_data['games']:
+            home_team_data = next(team for team in game['competitions'][0]['competitors'] if team["homeAway"] == "home")
+            away_team_data = next(team for team in game['competitions'][0]['competitors'] if team["homeAway"] == "away")
+
             game_details = {
                 'Week': f"Week {game['week']['number']}",
                 'Date & Time': game['competitions'][0]['date'],
                 'Stadium': game['competitions'][0]['venue']['fullName'],
                 'Gamecast Link': game['links'][0]['href'],
-                'Home Team': game['name'].split(" at ")[1],
-                'Away Team': game['name'].split(" at ")[0],
+                'Home Team': home_team_data["team"]["displayName"],
+                'Away Team': away_team_data["team"]["displayName"],
                 'Home Team Short': home_team_data["team"]["abbreviation"],
                 'Away Team Short': away_team_data["team"]["abbreviation"]
             }
