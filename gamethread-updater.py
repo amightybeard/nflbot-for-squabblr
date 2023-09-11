@@ -139,7 +139,7 @@ I am a bot. Post your feedback to /s/ModBot"""
         'authorization': 'Bearer ' + SQUABBLES_TOKEN
     }
     payload = {
-        "community_name": "Test",
+        "community_name": "NFL",
         "content": content
     }
 
