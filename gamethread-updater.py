@@ -57,6 +57,17 @@ def fetch_scoreboard_data():
     response = requests.get(ESPN_API_URL)
     return response.json()
 
+def extract_and_format_additional_data(matchup_data):
+    # TODO: Extract and format the game stats and leaders using the provided data structure
+    game_stats_content = "..."
+    game_leaders_content = "..."
+    return game_stats_content, game_leaders_content
+
+def fetch_matchup_data(game_id):
+    url = f"https://cdn.espn.com/core/nfl/matchup?xhr=1&gameId={game_id}"
+    response = requests.get(url)
+    return response.json()
+
 def extract_game_data(game_data):
     """Extract relevant game data from the ESPN API response."""
     home_team_data = next(competitor for competitor in game_data['competitions'][0]['competitors'] if competitor['homeAway'] == 'home')
@@ -84,10 +95,63 @@ def extract_game_data(game_data):
         'away_team_score': away_team_score,
         'home_team_linescores': home_team_linescores,
         'away_team_linescores': away_team_linescores,
-        "game_status_detail": game_status_detail
+        "game_status_detail": game_status_detail,
+        'home_team_shortname': home_team_shortname,
+        'away_team_shortname': away_team_shortname
     }
 
+def update_schedule_with_status(gamecast_link, status, home_team_short, away_team_short):
+    with open('nfl-schedule.csv', 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        schedule = list(reader)
+        
+    for game in schedule:
+        if game["Gamecast Link"] == gamecast_link:
+            game["Status"] = status
+            game['Home Team Short'] = home_team_short
+            game['Away Team Short'] = away_team_short
+            break
 
+    # Save the updated schedule back to CSV
+    with open('nfl-schedule.csv', 'w', newline='') as csvfile:
+        fieldnames = ['Week', 'Date & Time', 'Stadium', 'Home Team', 'Away Team', 'Home Team Short', 'Away Team Short', 'Gamecast Link', 'Squabblr Hash ID', 'Status']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for game in schedule:
+            writer.writerow(game)
+
+def format_scoring_comment(score_data):
+    scoring_play = score_data["gamepackageJSON"]["scoringPlays"]
+    Score_Period = str(scoring_play["period"]["number"]) + {1: 'st', 2: 'nd', 3: 'rd'}.get(scoring_play["period"]["number"], 'th') + ' Quarter'
+    Score_Time = scoring_play["clock"]["displayValue"]
+    Score_Description = scoring_play["text"]
+    Score_Team = scoring_play["team"]["abbreviation"]
+    Score_Type = scoring_play["scoringType"]["displayName"]
+    New_Score_Home = scoring_play["homeScore"]
+    New_Score_Away = scoring_play["awayScore"]
+
+    return f"**{Score_Team} score with a {Score_Type}!** - {home_shortname} {New_Score_Home} - {away_shortname} {New_Score_Away}\n\n{Score_Description} - {Score_Time} left in the {Score_Period}"
+
+def post_reply(post_id, content):
+      headers = {
+         'authorization': 'Bearer ' + SQUABBLES_TOKEN
+      }
+      
+      resp = requests.post(f'https://squabblr.co/api/posts/{game['Squabblr Hash ID']}/reply', data={
+         "content": content
+      }, headers=headers)
+      
+      if resp.status_code in [200, 201]:
+         logging.info(f"Successfully posted a reply for post ID: {post_id}")
+      else:
+         logging.warning(f"Failed to post a reply for post ID: {post_id}.")
+
+      # Log the response status and content
+      logging.info(f"Response status from Squabblr API when posting reply: {resp.status_code}")
+      logging.info(f"Response content from Squabblr API when posting reply: {resp.text}")
+      
+      return resp.json()
+    
 def update_game_thread(game, game_data_from_api):
     """
     Updates the game thread for a specific game based on the latest data from the ESPN API.
@@ -97,8 +161,12 @@ def update_game_thread(game, game_data_from_api):
     - game_data_from_api: The specific game data extracted from the ESPN API.
     """
     
-    # Extract game data using the helper function
-    game_data = extract_game_data(game_data_from_api)
+    # Extract the short team names from the schedule
+    home_team_shortname = game['Home Team Short']
+    away_team_shortname = game['Away Team Short']
+
+    # Extract the relevant game data
+    game_data = extract_game_data(game_data_from_api, home_team_shortname, away_team_shortname)
 
     # Fetch the win-loss records (assuming you want to keep this from the previous code)
     away_team_wins, away_team_losses, away_team_ties = fetch_team_record(game["Away Team"])
@@ -115,6 +183,16 @@ def update_game_thread(game, game_data_from_api):
 
     date_str, time_str = convert_datetime_to_natural_format(game["Date & Time"])
 
+    # Game Time
+    period = game_data["status"]["period"]
+    ordinal = lambda n: "%d%s" % (n, "tsnrhtdd"[((n//10%10!=1)*(n%10<4)*n%10)::4])
+    period_string = f"{ordinal(period)} Quarter"
+    game_time = f"**Game Time**: {game_data['status']['displayClock']} left in the {period_string}"
+
+    # Last Updated
+    current_time = datetime.now().strftime('%-I:%M%p ET')
+    last_updated = f"**Last Updated**: {current_time}"
+
     content = f"""##### {game['Away Team']} ({away_team_record}) at {game['Home Team']} ({home_team_record})
 
 -----
@@ -122,7 +200,8 @@ def update_game_thread(game, game_data_from_api):
 - Kickoff: {time_str}
 - Location: {game['Stadium']}
 - [ESPN Gamecast]({game['Gamecast Link']})
-- Last Updated: {game_data['game_status_detail']}
+- Game Time: {game_time}
+- Last Updated: {last_updated}
 
 | Team | 1Q | 2Q | 3Q | 4Q | Total |
 |---|---|---|---|---|---|
@@ -132,6 +211,31 @@ def update_game_thread(game, game_data_from_api):
 -----
 
 I am a bot. Post your feedback to /s/ModBot"""
+    
+    # Extract the game status
+    game_status = game_data_from_api["status"]["type"]["name"]
+    if game["Status"] != game_status:
+        # Update the local CSV with the new status
+        update_schedule_with_status(game["Gamecast Link"], game_status)
+        # Sync the updated CSV to the Gist
+        sync_csv_to_gist()
+
+    # If the game is complete, append the additional data
+    if game_status == "STATUS_FINAL" and "Game Stats" not in game["content"]:
+        # Fetch additional data from the new API endpoint
+        matchup_data = fetch_matchup_data(game["Gamecast Link"].split("gameId=")[-1])
+        # Extract and format the game stats and leaders
+        game_stats_content, game_leaders_content = extract_and_format_additional_data(matchup_data)
+        # Append this data to the main content
+        content += f"\n\n{game_stats_content}\n\n{game_leaders_content}"
+
+    # Check for scoring changes
+    score_data = fetch_score_data(game["Gamecast Link"].split("gameId=")[-1])
+    if is_new_score(game, score_data):
+        # Extract and format the scoring comment content
+        comment_content = format_scoring_comment(score_data)
+        # Post the comment
+        post_reply(game["Squabblr Hash ID"], comment_content)
 
     # Use the Squabblr API to update the game thread content
     update_url = f"https://squabblr.co/api/posts/{game['Squabblr Hash ID']}"
