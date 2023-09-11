@@ -178,6 +178,9 @@ def main():
             )
 
             try:
+                headers = {
+                    'authorization': 'Bearer ' + SQUABBLES_TOKEN
+                }
                 away_team = game['Away Team']
                 home_team = game['Home Team']
                 week = game['Week']
