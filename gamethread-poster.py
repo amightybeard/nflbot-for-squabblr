@@ -176,29 +176,38 @@ def main():
                 stadium=game["Stadium"],
                 gamecast_link=game["Gamecast Link"]
             )
+
+            try:
+                resp = requests.post('https://squabblr.co/api/new-post', data={
+                    "community_name": "Test",
+                    "title": title,
+                    "content": content
+                }, headers=headers)
             
-            # Check if response exists and contains expected keys
-            if resp.status_code in [200, 201]:
-                hash_id = resp_data.get("hash_id")
-                
-                if not hash_id and 'data' in resp_data and len(resp_data['data']) > 0 and 'hash_id' in resp_data['data'][0]:
-                    hash_id = resp_data['data'][0]['hash_id']
+                # Check if response exists and contains expected keys
+                if resp and resp.status_code in [200, 201]:
+                    hash_id = resp_data.get("hash_id")
                     
-                if hash_id:
-                    print(f"main = Successfully posted game thread for {away_team} at {home_team}. Hash ID: {hash_id}")
-                    return hash_id
+                    if not hash_id and 'data' in resp_data and len(resp_data['data']) > 0 and 'hash_id' in resp_data['data'][0]:
+                        hash_id = resp_data['data'][0]['hash_id']
+                        
+                    if hash_id:
+                        print(f"main = Successfully posted game thread for {away_team} at {home_team}. Hash ID: {hash_id}")
+                        return hash_id
+                    else:
+                        print(f"main = Unexpected response structure after posting game thread for {away_team} at {home_team}. Response: {resp.text}")
+                        return None
+                    
+                    print(f"Hash ID to be written to CSV: {hash_id}")
+                    print("Updating local CSV with hash_id...")
+                    update_schedule_with_hash_id(schedule, game, hash_id)
+                    sync_csv_to_gist()
+                    print("Local CSV updated.")
                 else:
-                    print(f"main = Unexpected response structure after posting game thread for {away_team} at {home_team}. Response: {resp.text}")
+                    print(f"main = Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
                     return None
-                
-                print(f"Hash ID to be written to CSV: {hash_id}")
-                print("Updating local CSV with hash_id...")
-                update_schedule_with_hash_id(schedule, game, hash_id)
-                sync_csv_to_gist()
-                print("Local CSV updated.")
-            else:
-                print(f"main = Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
-                return None
+            except requests.RequestException as e:
+                print(f"Error while posting game thread for {away_team} at {home_team}. Error: {e}")
                 
             # Sleep for 30 seconds between operations to ensure sequential execution
             print(f"Starting delay at {datetime.now().time()}")
