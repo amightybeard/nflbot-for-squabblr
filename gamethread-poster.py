@@ -85,7 +85,10 @@ I am a bot. Post your feedback to /s/ModBot"""
     resp_data = resp.json()
 
     # Check for HTTP success
-    if resp.status_code == 200:
+    if resp.status_code == [200,201]:
+        hash_id = resp.json().get("hash_id")
+        if hash_id:
+            return hash_id
         if 'data' in resp_data and len(resp_data['data']) > 0:
             return resp_data['data'][0]
         else:
@@ -132,6 +135,7 @@ def sync_csv_to_gist():
     response = requests.patch(gist_url, headers=headers, json=data)
     if response.status_code != 200:
         print(f"Failed to update Gist. Status code: {response.status_code}. Response: {response.text}")
+    print(f"Response from GitHub API: {response.text}")
     return response.status_code
 
 def starts_within_next_4_hours(date_time_str):
@@ -140,8 +144,6 @@ def starts_within_next_4_hours(date_time_str):
     current_time = datetime.utcnow()
     time_difference = game_time - current_time
     return 0 <= time_difference.total_seconds() <= 4 * 60 * 60  # 4 hours in seconds
-
-import time
 
 def main():
     schedule = fetch_schedule_from_gist()
