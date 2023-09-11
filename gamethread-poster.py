@@ -88,7 +88,7 @@ I am a bot. Post your feedback to /s/ModBot"""
     if resp.status_code in [200,201]:
         hash_id = resp.json().get("hash_id")
         if hash_id:
-            return hash_id
+            return hash_id, title, content
         if 'data' in resp_data and len(resp_data['data']) > 0:
             return resp_data['data'][0]
         else:
@@ -178,6 +178,7 @@ def main():
             )
 
             try:
+                hash_id, title, content = post_game_thread(game, game_data)
                 resp = requests.post('https://squabblr.co/api/new-post', data={
                     "community_name": "Test",
                     "title": title,
