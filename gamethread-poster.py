@@ -95,22 +95,35 @@ I am a bot. Post your feedback to /s/ModBot"""
             print(f"Unexpected response structure after posting game thread for {away_team} at {home_team}. Response: {resp.text}")
             return None
     else:
-        print(f"Failed to post game thread for {away_team} at {home_team}. Response: {resp.text}")
+        print(f"Posted game thread for {away_team} at {home_team}. Hash ID: {resp_data}")
         return None
         
 def update_schedule_with_hash_id(schedule, game, hash_id):
+    print(f"Attempting to update schedule for game: {game['Away Team']} at {game['Home Team']} with hash_id: {hash_id}")
+    
+    game_found = False
     for row in schedule:
         if row['Gamecast Link'] == game['Gamecast Link']:
             row['Squabblr Hash ID'] = hash_id
+            print(f"Updated hash_id for game: {row['Away Team']} at {row['Home Team']} with hash_id: {hash_id}")
+            game_found = True
             break
 
-    # Save the updated schedule back to CSV
-    with open('nfl-schedule.csv', 'w', newline='') as csvfile:
-        fieldnames = ['Week', 'Date & Time', 'Stadium', 'Home Team', 'Away Team', 'Gamecast Link', 'Squabblr Hash ID']
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in schedule:
-            writer.writerow(row)
+    if not game_found:
+        print(f"No matching game found for {game['Away Team']} at {game['Home Team']} in the schedule. Unable to update hash_id.")
+        return
+
+    try:
+        # Save the updated schedule back to CSV
+        with open('nfl-schedule.csv', 'w', newline='') as csvfile:
+            fieldnames = ['Week', 'Date & Time', 'Stadium', 'Home Team', 'Away Team', 'Home Team Short', 'Away Team Short', 'Gamecast Link', 'Squabblr Hash ID', 'Status']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for row in schedule:
+                writer.writerow(row)
+        print(f"Successfully wrote to the CSV for game: {game['Away Team']} at {game['Home Team']}")
+    except Exception as e:
+        print(f"Error encountered while writing to the CSV: {str(e)}")
 
 def sync_csv_to_gist():
     """Sync the updated local CSV to the Gist."""
