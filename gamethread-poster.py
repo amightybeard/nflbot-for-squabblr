@@ -85,7 +85,7 @@ I am a bot. Post your feedback to /s/ModBot"""
     resp_data = resp.json()
 
     # Check for HTTP success
-    if resp.status_code == [200,201]:
+    if resp.status_code in [200,201]:
         hash_id = resp.json().get("hash_id")
         if hash_id:
             return hash_id
