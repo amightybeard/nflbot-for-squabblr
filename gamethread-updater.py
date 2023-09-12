@@ -191,7 +191,7 @@ def main():
             continue
 
         # Update the game thread
-        if update_game_thread(game, game_data):
+        if update_game_thread(game, game_data, game_data_from_api):
             print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
             print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
