@@ -57,8 +57,8 @@ def fetch_scoreboard_data():
     response = requests.get(ESPN_API_URL)
     return response.json()
 
-def fetch_matchup_data(game_id):
-    url = f"https://cdn.espn.com/core/nfl/matchup?xhr=1&gameId={game_id}"
+def fetch_matchup_data(game_id_from_csv):
+    url = f"https://cdn.espn.com/core/nfl/matchup?xhr=1&gameId={game_id_from_csv}"
     response = requests.get(url)
     return response.json()
     print(f"Response from ESPN Matchup API: {response.json()}")
