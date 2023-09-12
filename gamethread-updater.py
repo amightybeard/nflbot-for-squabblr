@@ -174,9 +174,7 @@ def get_leader_details(category_name):
     # Format the table
     leaders_content = "#### Game Leaders\n"
     
-    for category, home_leader, away_leader in [("Passing", passing_home, passing_away), 
-                                               ("Rushing", rushing_home, rushing_away), 
-                                               ("Receiving", receiving_home, receiving_away)]:
+    for category, home_leader, away_leader in [("Passing", passing_home, passing_away), ("Rushing", rushing_home, rushing_away), ("Receiving", receiving_home, receiving_away)]:
         leaders_content += f"**{category}**\n"
         leaders_content += f"| {home_shortname} | {away_shortname} |\n"
         leaders_content += "| --- | --- |\n"
@@ -303,19 +301,17 @@ def main():
             print(f"Could not find data for game: {game['Away Team']} at {game['Home Team']}")
             continue
 
-        # If game is final, fetch additional matchup data for game stats and leaders
+        # Always fetch current game data and update the game thread with it
+        matchup_data_from_api = None
         if game["Status"] == "STATUS_FINAL":
             matchup_data_from_api = fetch_matchup_data(game_id_from_csv)
             print(f"Matchup data fetched from API: {matchup_data_from_api}")
-            
-            # Update the game thread
-            if update_game_thread(game, matchup_data_from_api):
-                print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
-            else:
-                print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
+
+        if update_game_thread(game, matchup_data_from_api):
+            print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
-            print(f"Game {game['Away Team']} at {game['Home Team']} is not final yet. Skipping.")
-            
+            print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
+
         # Sleep to avoid hitting rate limits
         time.sleep(30)
 
