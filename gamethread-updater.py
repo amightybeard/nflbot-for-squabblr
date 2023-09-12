@@ -293,7 +293,7 @@ def main():
             print(f"Checking against game ID {event['id']} from API")
             
             if str(event['id']) == game_id_from_csv:
-                game_data_from_api = event
+                matchup_data_from_api = event
                 print(f"Match found for game ID {game_id_from_csv}.")
                 break
                 print(f"Game Data from API: {game_data_from_api}.")
