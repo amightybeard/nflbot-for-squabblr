@@ -61,6 +61,11 @@ def fetch_matchup_data(game_id):
     url = f"https://cdn.espn.com/core/nfl/matchup?xhr=1&gameId={game_id}"
     response = requests.get(url)
     return response.json()
+    print(f"Response from ESPN Matchup API: {response.json()}")
+    if response.status_code != 200:
+        print(f"Error fetching data from ESPN Matchup API. Status code: {response.status_code}")
+        return {}
+
 
 def extract_and_format_additional_data(matchup_data):
     # TODO: Extract and format the game stats and leaders using the provided data structure
