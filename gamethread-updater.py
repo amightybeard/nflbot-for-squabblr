@@ -121,7 +121,7 @@ def update_game_thread(game, game_data_from_api):
     date_str, time_str = convert_datetime_to_natural_format(game["Date & Time"])
 
     # Game Time
-    period = game_data["status"]["period"]
+    period = {game_data["status"]["period"]}
     ordinal = lambda n: "%d%s" % (n, "tsnrhtdd"[((n//10%10!=1)*(n%10<4)*n%10)::4])
     period_string = f"{ordinal(period)} Quarter"
     game_time = f"**Game Time**: {game_data['status']['displayClock']} left in the {period_string}"
