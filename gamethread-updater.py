@@ -62,8 +62,9 @@ def fetch_matchup_data(game_id):
     response = requests.get(url)
     return response.json()
     print(f"Response from ESPN Matchup API: {response.json()}")
+    
     if response.status_code != 200:
-        print(f"Error fetching data from ESPN Matchup API. Status code: {response.status_code}")
+        print(f"Error fetching data from ESPN Matchup API. Status code: {response.status_code}. Response text: {response.text}")
         return {}
 
 
@@ -303,16 +304,18 @@ def main():
             continue
 
         # If game is final, fetch additional matchup data for game stats and leaders
-        matchup_data_from_api = None
         if game["Status"] == "STATUS_FINAL":
             matchup_data_from_api = fetch_matchup_data(game_id_from_csv)
-        
-        # Update the game thread
-        if update_game_thread(game, matchup_data_from_api):
-            print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
+            print(f"Matchup data fetched from API: {matchup_data_from_api}")
+            
+            # Update the game thread
+            if update_game_thread(game, matchup_data_from_api):
+                print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
+            else:
+                print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
-            print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
-
+            print(f"Game {game['Away Team']} at {game['Home Team']} is not final yet. Skipping.")
+            
         # Sleep to avoid hitting rate limits
         time.sleep(30)
 
