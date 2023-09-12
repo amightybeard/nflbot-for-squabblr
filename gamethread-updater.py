@@ -295,10 +295,11 @@ def main():
             if str(event['id']) == game_id_from_csv:
                 matchup_data_from_api = event
                 print(f"Match found for game ID {game_id_from_csv}.")
+                print(f"Assigned data: {matchup_data_from_api}")
                 break
-                print(f"Game Data from API: {game_data_from_api}.")
 
         if not game_data_from_api:
+            print(f"matchup_data_from_api before the 'Could not find data' message: {matchup_data_from_api}")
             print(f"Could not find data for game: {game['Away Team']} at {game['Home Team']}")
             continue
 
