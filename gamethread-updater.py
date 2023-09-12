@@ -84,9 +84,7 @@ def extract_game_data(game_data):
         'away_team_score': away_team_score,
         'home_team_linescores': home_team_linescores,
         'away_team_linescores': away_team_linescores,
-        "game_status_detail": game_status_detail,
-        'home_team_shortname': home_team_shortname,
-        'away_team_shortname': away_team_shortname
+        "game_status_detail": game_status_detail
     }
     
 def update_game_thread(game, game_data_from_api):
