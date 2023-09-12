@@ -302,7 +302,7 @@ def main():
             matchup_data_from_api = fetch_matchup_data(game_id_from_csv)
         
         # Update the game thread
-        if update_game_thread(game, game_data, matchup_data_from_api):
+        if update_game_thread(game, matchup_data_from_api):
             print(f"Successfully updated game thread for: {game['Away Team']} at {game['Home Team']}")
         else:
             print(f"Failed to update game thread for: {game['Away Team']} at {game['Home Team']}")
