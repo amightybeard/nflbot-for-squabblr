@@ -168,15 +168,6 @@ def main():
         print(f"Processing game: {game['Away Team']} at {game['Home Team']}")
         game_date = datetime.strptime(game["Date & Time"], '%Y-%m-%dT%H:%MZ').date()
         if starts_within_next_4_hours(game["Date & Time"]):
-            response = post_game_thread(
-                away_team=game["Away Team"],
-                home_team=game["Home Team"],
-                week=game["Week"],
-                date_time=game["Date & Time"],
-                stadium=game["Stadium"],
-                gamecast_link=game["Gamecast Link"]
-            )
-
             try:
                 headers = {
                     'authorization': 'Bearer ' + SQUABBLES_TOKEN
