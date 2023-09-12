@@ -99,8 +99,8 @@ def update_game_thread(game, game_data_from_api):
     """
     
     # Extract the short team names from the schedule
-    home_team_shortname = game['Home Team Short']
-    away_team_shortname = game['Away Team Short']
+    # home_team_shortname = game['Home Team Short']
+    # away_team_shortname = game['Away Team Short']
 
     # Extract the relevant game data
     print(f"game_data_from_api: {game_data_from_api}")
