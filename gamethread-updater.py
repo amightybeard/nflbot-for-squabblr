@@ -159,12 +159,12 @@ def format_game_leaders(data, home_shortname, away_shortname):
     
     leaders_data = data["gamepackageJSON"]["boxscore"]["leaders"]
     
-    # Define a function to extract leader details by category
-    def get_leader_details(category_name):
-        category_data = next(item for item in leaders_data if item["name"] == category_name)["leaders"]
-        home_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == home_shortname)
-        away_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == away_shortname)
-        return home_leader, away_leader
+# Define a function to extract leader details by category
+def get_leader_details(category_name):
+    category_data = next(item for item in leaders_data if item["name"] == category_name)["leaders"]
+    home_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == home_shortname)
+    away_leader = next(leader for leader in category_data if leader["athlete"]["team"]["abbreviation"] == away_shortname)
+    return home_leader, away_leader
     
     # Extract passing, rushing, and receiving leaders
     passing_home, passing_away = get_leader_details("passingYards")
