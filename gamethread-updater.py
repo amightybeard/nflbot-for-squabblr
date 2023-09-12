@@ -87,7 +87,7 @@ def extract_game_data(game_data):
         "game_status_detail": game_status_detail
     }
     
-def update_game_thread(game, game_data_from_api):
+def update_game_thread(game, game_data, game_data_from_api):
     """
     Updates the game thread for a specific game based on the latest data from the ESPN API.
 
@@ -121,7 +121,7 @@ def update_game_thread(game, game_data_from_api):
     date_str, time_str = convert_datetime_to_natural_format(game["Date & Time"])
 
     # Game Time
-    period = {game_data["status"]["period"]}
+    period = game_data["status"]["period"]
     ordinal = lambda n: "%d%s" % (n, "tsnrhtdd"[((n//10%10!=1)*(n%10<4)*n%10)::4])
     period_string = f"{ordinal(period)} Quarter"
     game_time = f"**Game Time**: {game_data['status']['displayClock']} left in the {period_string}"
