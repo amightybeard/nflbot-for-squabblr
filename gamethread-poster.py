@@ -198,7 +198,7 @@ def main():
             
                 # Check if response exists and contains expected keys
                 if resp and resp.status_code in [200, 201]:
-                    hash_id = resp_data.get("hash_id")
+                    hash_id = resp_data['data'][0]['hash_id']
                     
                     if not hash_id and 'data' in resp_data and len(resp_data['data']) > 0 and 'hash_id' in resp_data['data'][0]:
                         hash_id = resp_data['data'][0]['hash_id']
