@@ -287,17 +287,18 @@ def main():
         # Log the game ID from the CSV
         print(f"Searching for game ID {game_id_from_csv} from CSV for game: {game['Away Team']} at {game['Home Team']}")
         
-        game_data = None
+        game_data_from_api = None
         for event in scoreboard_data["events"]:
             # Log the game ID from the API
             print(f"Checking against game ID {event['id']} from API")
             
             if str(event['id']) == game_id_from_csv:
-                game_data = event
+                game_data_from_api = event
                 print(f"Match found for game ID {game_id_from_csv}.")
                 break
+                print(f"Game Data from API: {game_data_from_api}.")
 
-        if not game_data:
+        if not game_data_from_api:
             print(f"Could not find data for game: {game['Away Team']} at {game['Home Team']}")
             continue
 
