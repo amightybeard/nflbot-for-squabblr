@@ -193,6 +193,7 @@ def update_game_thread(game, game_data_from_api):
     away_team_shortname = game['Away Team Short']
 
     # Extract the relevant game data
+    print(f"game_data_from_api: {game_data_from_api}")
     game_data = extract_game_data(game_data_from_api)
 
     # Fetch the win-loss records (assuming you want to keep this from the previous code)
