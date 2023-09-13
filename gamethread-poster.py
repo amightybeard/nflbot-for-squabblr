@@ -58,15 +58,16 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
     date_str, time_str = convert_datetime_to_natural_format(date_time)
 
-    title = f"[GameThread] {away_team} at {home_team} - {week} - {date_str} at {time_str}"
+    title = f"[GameThread] {away_team} at {home_team} - {week}"
 
-    content = f"""##### {away_team} ({away_team_record}) at {home_team} ({home_team_record})
+    content = f"""##### {away_team} ({away_team_record}) vs {home_team} ({home_team_record})
 
 -----
 
-- Kickoff: {time_str}
+- Kickoff: {date_str} at {time_str}
 - Location: {stadium}
 - [ESPN Gamecast]({gamecast_link})
+- [Join The Live Chat!](https://squabblr.co/s/nfl/chat)
 
 | Team | 1Q | 2Q | 3Q | 4Q | Total |
 |---|---|---|---|---|---|
@@ -77,7 +78,7 @@ def post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_li
 
 I am a bot. Post your feedback to /s/ModBot"""
     resp = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "Test",
+        "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
@@ -182,7 +183,7 @@ def main():
                 hash_id, title, content = post_game_thread(away_team, home_team, week, date_time, stadium, gamecast_link)
                 
                 resp = requests.post('https://squabblr.co/api/new-post', data={
-                    "community_name": "Test",
+                    "community_name": "NFL",
                     "title": title,
                     "content": content
                 }, headers=headers)
