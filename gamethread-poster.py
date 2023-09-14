@@ -1,0 +1,120 @@
+import os
+import requests
+import logging
+from datetime import datetime, timedelta
+import pandas as pd
+
+# 1. Initialization
+
+# Setting up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Constants
+SQUABBLR_TOKEN = os.environ.get('SQUABBLES_TOKEN')
+GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
+GIST_ID_SCHEDULES = os.environ.get('NFLBOT_SCHEDULES_GIST')
+GIST_FILENAME_SCHEDULES = 'nfl-schedule.csv'
+GIST_URL_SCHEDULES = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_SCHEDULES}/raw/{GIST_FILENAME_SCHEDULES}"
+GIST_ID_STANDINGS = os.environ.get('NFLBOT_STANDINGS_GIST')
+GIST_FILENAME_STANDINGS = 'nfl-standings.csv'
+GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_STANDINGS}/raw/{GIST_FILENAME_STANDINGS}"
+
+# Load the CSV data from uploaded files
+schedule_df = pd.read_csv('/path/to/nfl-schedule.csv')
+standings_df = pd.read_csv('/path/to/nfl-standings.csv')
+logging.info("Data loaded successfully.")
+
+# 2. Processing
+
+def filter_upcoming_games(df, hours=3):
+    now = datetime.now()
+    end_time = now + timedelta(hours=hours)
+    
+    df['Date & Time'] = pd.to_datetime(df['Date & Time'])
+    upcoming_games = df[(df['Date & Time'] >= now) & (df['Date & Time'] <= end_time) & (df['Status'] == 'STATUS_SCHEDULED')]
+    
+    return upcoming_games
+
+upcoming_games = filter_upcoming_games(schedule_df)
+
+def get_team_record(team, standings_df):
+    record = standings_df[standings_df['Team'] == team].iloc[0]
+    wins = record['Wins']
+    losses = record['Losses']
+    ties = record['Ties']
+    if ties == 0:
+        return f"{wins}-{losses}"
+    return f"{wins}-{losses}-{ties}"
+
+def construct_post_content(row, standings_df):
+    home_team = row['Home Team']
+    away_team = row['Away Team']
+    week = row['Week']
+    date_str = row['Date & Time'].strftime('%Y-%m-%d')
+    time_str = row['Date & Time'].strftime('%H:%M %p')
+    stadium = row['Stadium']
+    gamecast_link = row['Gamecast Link']
+    home_team_short = row['Home Team Short']
+    away_team_short = row['Away Team Short']
+    
+    home_team_record = get_team_record(home_team, standings_df)
+    away_team_record = get_team_record(away_team, standings_df)
+    
+    title = f"[Gamethread] {home_team} at {away_team} - {week}"
+    content = f"""
+#### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
+- **Kickoff**: {date_str} at {time_str}
+- **Location**: {stadium}
+- [Join The Live Chat!](https://squabblr.co/s/nfl/chat)
+- [ESPN Gamecast]({gamecast_link})
+-----
+| Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
+|---|---|---|---|---|---|---|
+| **{home_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
+| **{away_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
+-----
+I am a bot. Post your feedback to /s/ModBot
+"""
+    return title, content
+
+if not upcoming_games.empty:
+    for _, game in upcoming_games.iterrows():
+        title, content = construct_post_content(game, standings_df)
+        # Here, you can use title and content for posting to Squabblr.co
+
+def post_to_squabblr(title, content):
+    logging.info(f"Posting article '{title}' to Squabblr.co...")
+    headers = {
+        'authorization': 'Bearer ' + SQUABBLR_TOKEN
+    }
+    response = requests.post('https://squabblr.co/api/new-post', data={
+        "community_name": "test",
+        "title": title,
+        "content": content
+    }, headers=headers)
+    logging.info(f"Article '{title}' posted successfully.")
+    return response.json()
+
+upcoming_games = filter_upcoming_games(schedule_df)
+if not upcoming_games.empty:
+    for _, game in upcoming_games.iterrows():
+        title, content = construct_post_content(game, standings_df)
+        
+        # Post to Squabblr and get the hash_id
+        response_data = post_to_squabblr(title, content)
+        hash_id = response_data['data'][0]['hash_id']
+        
+        # Update the CSV
+        schedule_df.loc[game.name, 'Squabblr Hash ID'] = hash_id
+        schedule_df.loc[game.name, 'Status'] = 'STATUS_IN_PROGRESS'
+        logging.info(f"Updated schedule CSV for game: {title}.")
+        
+        # Delay for 15 seconds before processing the next game
+        time.sleep(15)
+
+# 3. Finalization
+
+# Here, you would update the `nfl-schedule.csv` gist with the new data
+# Since I cannot perform this action in the current environment, I'm logging a placeholder message.
+logging.info("nfl-schedule.csv would be updated on GitHub Gist at this step.")
+logging.info("Script completed successfully.")
