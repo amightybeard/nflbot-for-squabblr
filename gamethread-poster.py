@@ -118,7 +118,11 @@ def construct_post_content(row, standings_df):
 |---|---|---|---|---|---|---|
 | **{home_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
 | **{away_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
+
+*Note, the boxscore will not be updated automatically. We'll get to it when we can.*
+
 -----
+
 I am a bot. Post your feedback to /s/ModBot
 """
     return title, content
