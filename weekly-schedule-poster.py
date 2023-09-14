@@ -111,7 +111,7 @@ content_lines = [
 for _, game in games_of_the_week.iterrows():
     home_team = game['Home Team']
     away_team = game['Away Team']
-    kickoff_time = format_kickoff_datetime(game['Date & Time'])
+    kickoff_time = format_kickoff_datetime(game['Date & Time'].strftime('%Y-%m-%dT%H:%M:%SZ'))
     home_team_record = get_team_record(home_team, standings_df)
     away_team_record = get_team_record(away_team, standings_df)
     content_lines.append(f"| {kickoff_time} | {away_team} ({away_team_record}) vs. {home_team} ({home_team_record}) |")
