@@ -1,12 +1,12 @@
 name: Game Thread Poster
 
 on:
-  schedule:
-    - cron: '0 22 * * 4' # 6pm ET on Thursday
-    - cron: '0 15 * * 0' # 11am ET on Sunday
-    - cron: '15 19 * * 0' # 3:15pm ET on Sunday
-    - cron: '0 22 * * 0' # 6pm ET on Sunday
-    - cron: '0 22 * * 1' # 6pm ET on Monday
+  # schedule:
+  #   - cron: '0 22 * * 4' # 6pm ET on Thursday
+  #   - cron: '0 15 * * 0' # 11am ET on Sunday
+  #   - cron: '15 19 * * 0' # 3:15pm ET on Sunday
+  #   - cron: '0 22 * * 0' # 6pm ET on Sunday
+  #   - cron: '0 22 * * 1' # 6pm ET on Monday
   workflow_dispatch:  # This allows you to manually trigger the workflow from the GitHub Actions UI
 
 jobs:
@@ -30,4 +30,5 @@ jobs:
       run: python gamethread-poster.py
       env:
         SQUABBLES_TOKEN: ${{ secrets.SQUABBLES_TOKEN }}
-        NFLBOT_WRITE_TO_GIST: ${{ secrets.NFLBOT_WRITE_TO_GIST }}  # Using the GitHub token from repository secrets
+        NFLBOT_WRITE_TO_GIST: ${{ secrets.NFLBOT_WRITE_TO_GIST }}
+        NFLBOT_SCHEDULES_GIST: ${{ secrets.NFLBOT_SCHEDULES_GIST }}
