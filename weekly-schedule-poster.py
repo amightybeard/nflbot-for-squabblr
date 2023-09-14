@@ -65,7 +65,7 @@ def find_next_game_week(df):
     utc = pytz.utc
     now = datetime.now(utc)  # Make this timezone-aware in UTC
     
-    df['Date & Time'] = pd.to_datetime(df['Date & Time']).dt.tz_localize(utc)  # Convert to datetime and make timezone-aware in UTC
+    df['Date & Time'] = pd.to_datetime(df['Date & Time']).dt.tz_convert(utc)  # Convert to the same timezone (UTC)
     next_game = df[df['Date & Time'] > now].iloc[0]
     return next_game['Week']
 
