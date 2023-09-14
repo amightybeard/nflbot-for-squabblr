@@ -41,7 +41,7 @@ def format_kickoff_datetime(dt_str):
     eastern = pytz.timezone('US/Eastern')
     
     # Parse the date string and set it to UTC
-    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M%SZ').replace(tzinfo=utc)
+    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=utc)
     
     # Convert the datetime to Eastern Time
     dt_eastern = dt.astimezone(eastern)
