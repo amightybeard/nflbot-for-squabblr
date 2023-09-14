@@ -62,8 +62,10 @@ def get_team_record(team, standings_df):
 
 def find_next_game_week(df):
     """Find the week of the next scheduled game."""
-    now = datetime.now(pytz.utc)
-    df['Date & Time'] = pd.to_datetime(df['Date & Time'])  # Convert the 'Date & Time' column to datetime objects
+    utc = pytz.utc
+    now = datetime.now(utc)  # Make this timezone-aware in UTC
+    
+    df['Date & Time'] = pd.to_datetime(df['Date & Time']).dt.tz_localize(utc)  # Convert to datetime and make timezone-aware in UTC
     next_game = df[df['Date & Time'] > now].iloc[0]
     return next_game['Week']
 
