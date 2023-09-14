@@ -129,7 +129,7 @@ def post_to_squabblr(title, content):
         'authorization': 'Bearer ' + SQUABBLR_TOKEN
     }
     response = requests.post('https://squabblr.co/api/new-post', data={
-        "community_name": "test",
+        "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
