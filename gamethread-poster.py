@@ -52,7 +52,7 @@ def format_kickoff_datetime(dt_str):
     
     return f"{date_part} at {time_part}"
 
-def filter_upcoming_games(df, hours=3):
+def filter_upcoming_games(df, hours=6):
     utc = pytz.utc
     now = datetime.now(utc)  # Make this timezone-aware in UTC
     end_time = now + timedelta(hours=hours)
