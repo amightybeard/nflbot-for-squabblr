@@ -3,6 +3,7 @@ import requests
 import logging
 from datetime import datetime, timedelta
 import pandas as pd
+import pytz
 
 # 1. Initialization
 
@@ -51,6 +52,22 @@ def get_team_record(team, standings_df):
         return f"{wins}-{losses}"
     return f"{wins}-{losses}-{ties}"
 
+def format_kickoff_datetime(dt_str):
+    """Format the datetime string to the desired string representation."""
+    utc = pytz.utc
+    eastern = pytz.timezone('US/Eastern')
+    
+    # Parse the date string and set it to UTC
+    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M%SZ').replace(tzinfo=utc)
+    
+    # Convert the datetime to Eastern Time
+    dt_eastern = dt.astimezone(eastern)
+    
+    date_part = f"{dt_eastern.strftime('%B')} {ordinal(dt_eastern.day)}, {dt_eastern.year}"
+    time_part = dt_eastern.strftime('%I:%M%p ET')
+    
+    return f"{date_part} at {time_part}"
+
 def update_gist_file(gist_id, filename, content, token):
     headers = {
         'Authorization': f'token {token}',
@@ -66,6 +83,8 @@ def update_gist_file(gist_id, filename, content, token):
     response = requests.patch(f'https://api.github.com/gists/{gist_id}', headers=headers, json=data)
     response.raise_for_status()  # Raise an exception for HTTP errors
 
+
+
 def construct_post_content(row, standings_df):
     home_team = row['Home Team']
     away_team = row['Away Team']
@@ -76,6 +95,8 @@ def construct_post_content(row, standings_df):
     gamecast_link = row['Gamecast Link']
     home_team_short = row['Home Team Short']
     away_team_short = row['Away Team Short']
+
+    kickoff_time = format_kickoff_datetime(row['Date & Time'])
     
     home_team_record = get_team_record(home_team, standings_df)
     away_team_record = get_team_record(away_team, standings_df)
@@ -83,7 +104,7 @@ def construct_post_content(row, standings_df):
     title = f"[Gamethread] {home_team} at {away_team} - {week}"
     content = f"""
 #### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
-- **Kickoff**: {date_str} at {time_str}
+- **Kickoff**: {kickoff_time}
 - **Location**: {stadium}
 - [Join The Live Chat!](https://squabblr.co/s/nfl/chat)
 - [ESPN Gamecast]({gamecast_link})
