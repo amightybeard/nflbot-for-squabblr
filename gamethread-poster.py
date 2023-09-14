@@ -97,7 +97,7 @@ def construct_post_content(row, standings_df):
     home_team_short = row['Home Team Short']
     away_team_short = row['Away Team Short']
 
-    kickoff_time = format_kickoff_datetime(row['Date & Time'].strftime('%Y-%m-%dT%H:%M:%SZ'))
+    kickoff_time = format_kickoff_datetime(row['Date & Time'].strftime('%Y-%m-%dT%H:%M%SZ'))
     
     home_team_record = get_team_record(home_team, standings_df)
     away_team_record = get_team_record(away_team, standings_df)
