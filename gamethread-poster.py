@@ -107,9 +107,12 @@ def construct_post_content(row, standings_df):
 #### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
 - **Kickoff**: {kickoff_time}
 - **Location**: {stadium}
-- [Join The Live Chat!](https://squabblr.co/s/nfl/chat)
 - [ESPN Gamecast]({gamecast_link})
+
+##### Join The Live Chat! https://squabblr.co/s/nfl/chat
+
 -----
+
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
 |---|---|---|---|---|---|---|
 | **{home_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
@@ -146,7 +149,7 @@ if not upcoming_games.empty:
         
         # Post to Squabblr and get the hash_id
         response_data = post_to_squabblr(title, content)
-        hash_id = response_data['data'][0]['hash_id']
+        hash_id = response_data['hash_id']
         
         # Update the CSV
         schedule_df.loc[game.name, 'Squabblr Hash ID'] = hash_id
