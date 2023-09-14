@@ -2,6 +2,7 @@ import os
 import requests
 import logging
 from datetime import datetime, timedelta
+from io import StringIO
 import pandas as pd
 import pytz
 
@@ -25,7 +26,7 @@ GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_
 def fetch_csv_from_gist(gist_url):
     response = requests.get(gist_url)
     response.raise_for_status()  # Raise an exception for HTTP errors
-    return pd.read_csv(pd.StringIO(response.text))
+    return pd.read_csv(StringIO(response.text))
 
 def ordinal(number):
     """Return the ordinal representation of a number."""
