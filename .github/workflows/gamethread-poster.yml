@@ -1,0 +1,37 @@
+name: Gamethread Poster
+
+on:
+  schedule:
+    # Runs every hour on Thursdays, Sundays, and Mondays
+    - cron: '0 * * 1,4,7 *'
+  workflow_dispatch: 
+
+jobs:
+  post-gamethread:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests pytz pandas
+
+    - name: Run Gamethread Poster Script
+      env:
+        SQUABBLES_TOKEN: ${{ secrets.SQUABBLES_TOKEN }}
+        NFLBOT_WRITE_TO_GIST: ${{ secrets.NFLBOT_WRITE_TO_GIST }}
+        NFLBOT_SCHEDULES_GIST: ${{ secrets.NFLBOT_SCHEDULES_GIST }}
+        NFLBOT_STANDINGS_GIST: ${{ secrets.NFLBOT_STANDINGS_GIST }}
+      run: python ./gamethread-poster.py
+
+    - name: Report any issues
+      if: failure()
+      run: echo "The Gamethread Poster script encountered an issue."
