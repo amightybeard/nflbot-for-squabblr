@@ -60,8 +60,6 @@ def filter_upcoming_games(df, hours=6):
     
     return upcoming_games
 
-upcoming_games = filter_upcoming_games(schedule_df)
-
 def get_team_record(team, standings_df):
     record = standings_df[standings_df['Team'] == team].iloc[0]
     wins = record['Wins']
