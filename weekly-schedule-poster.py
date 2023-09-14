@@ -1,114 +1,134 @@
-import requests
-import csv
 import os
+import requests
+import logging
 from datetime import datetime, timedelta
+import pandas as pd
+import pytz
 
-SQUABBLES_TOKEN = os.environ.get('SQUABBLES_TOKEN')
-GIST_ID = "ef63fd2037741d41c2209b46da0779b8"
+# 1. Initialization
 
-def fetch_schedule_from_gist():
-    """Fetch the NFL schedule from the gist."""
-    print("Fetching schedule from gist...")
-    gist_url = f"https://api.github.com/gists/{GIST_ID}"
+# Setting up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Constants
+SQUABBLR_TOKEN = os.environ.get('SQUABBLES_TOKEN')
+GITHUB_TOKEN = os.environ.get('NFLBOT_WRITE_TO_GIST')
+GIST_ID_SCHEDULES = os.environ.get('NFLBOT_SCHEDULES_GIST')
+GIST_FILENAME_SCHEDULES = 'nfl-schedule.csv'
+GIST_URL_SCHEDULES = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_SCHEDULES}/raw/{GIST_FILENAME_SCHEDULES}"
+GIST_ID_STANDINGS = os.environ.get('NFLBOT_STANDINGS_GIST')
+GIST_FILENAME_STANDINGS = 'nfl-standings.csv'
+GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_STANDINGS}/raw/{GIST_FILENAME_STANDINGS}"
+
+def fetch_csv_from_gist(gist_url):
     response = requests.get(gist_url)
-    raw_csv = response.json()['files']['nfl-schedule.csv']['content']
-    reader = csv.DictReader(raw_csv.splitlines())
-    return list(reader)
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    return pd.read_csv(StringIO(response.text))
 
-def fetch_team_record(team_name):
-    """Fetch the win-loss-tie record of a team from the standings CSV."""
-    with open('csv/nfl_standings.csv', 'r', newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            if row['Team'] == team_name:
-                return row['Wins'], row['Losses'], row['Ties']
-    return '0', '0', '0'  # default if not found
+def ordinal(number):
+    """Return the ordinal representation of a number."""
+    if 10 <= number % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
+    return f"{number}{suffix}"
 
-def convert_datetime_to_natural_format(dt_string):
-    """Convert the provided date time string into a more natural format."""
-    dt_obj = datetime.strptime(dt_string, '%Y-%m-%dT%H:%MZ')
+def format_kickoff_datetime(dt_str):
+    """Format the datetime string to the desired string representation."""
+    utc = pytz.utc
+    eastern = pytz.timezone('US/Eastern')
     
-    # Adjust for Eastern Time (ET is UTC-4, but this doesn't account for daylight saving)
-    dt_obj = dt_obj - timedelta(hours=4)
+    # Parse the date string and set it to UTC
+    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M%SZ').replace(tzinfo=utc)
     
-    # Extract date without year and time without leading zero for the hour
-    date_format = dt_obj.strftime('%m/%d')
-    time_format = dt_obj.strftime('%I:%M%p ET').lstrip('0')
-
-    return date_format, time_format
-
-def get_current_week(schedule):
-    """Determine the current week of the NFL season."""
-    print("Determining the current week...")
-    today = datetime.today().date()
-    for game in schedule:
-        game_date = datetime.strptime(game['Date & Time'].split('T')[0], '%Y-%m-%d').date()
-        if game_date >= today:
-            return game['Week']
-
-def fetch_games_for_week(week):
-    schedule = fetch_schedule_from_gist()
-    games = [game for game in schedule if game['Week'] == week]
-    return games
-
-def construct_weekly_schedule_post(games, week):
-    """Construct and post the weekly schedule."""
-    print("Constructing weekly schedule post...")
-    table_header = "| Date & Time | Match Up | Live Thread |\n| ----- | ----- | ----- |\n"
-    table_content = ""
-        
-    for game in games:
-        game_date_str, game_time_str = convert_datetime_to_natural_format(game['Date & Time'])
-
-        # Define away_team and home_team
-        away_team = game['Away Team']
-        home_team = game['Home Team']
-        
-        # Fetch the win-loss records for away and home teams
-        away_team_wins, away_team_losses, away_team_ties = fetch_team_record(game['Away Team'])
-        home_team_wins, home_team_losses, home_team_ties = fetch_team_record(game['Home Team'])
-
-        # Format the win-loss-tie records for away and home teams
-        away_team_record = f"{away_team_wins}-{away_team_losses}"
-        if away_team_ties != '0':
-            away_team_record += f"-{away_team_ties}"
+    # Convert the datetime to Eastern Time
+    dt_eastern = dt.astimezone(eastern)
     
-        home_team_record = f"{home_team_wins}-{home_team_losses}"
-        if home_team_ties != '0':
-            home_team_record += f"-{home_team_ties}"
-            
-        matchup = f"{game['Away Team']} ({away_team_record}) at {game['Home Team']} ({home_team_record})"
-        table_content += f"| {game_date_str} at {game_time_str} | {matchup} | Coming Soon |\n"
+    date_part = f"{dt_eastern.strftime('%B')} {ordinal(dt_eastern.day)}, {dt_eastern.year}"
+    time_part = dt_eastern.strftime('%I:%M%p ET')
     
-    start_date_str, _ = convert_datetime_to_natural_format(games[0]['Date & Time'])
-    end_date_str, _ = convert_datetime_to_natural_format(games[-1]['Date & Time'])
-    
-    title = f"NFL 2023 Season - {week} Schedule - {start_date_str}-{end_date_str.split('/')[-1]}"
-    content = f"Here is this week's schedule. **What games are you planning on watching?**\n\n{table_header}{table_content}\n-----\n\nI am a bot. Post your feedback on /s/ModBot"
+    return f"{date_part} at {time_part}"
 
-    post_to_squabblr(title, content)
+def filter_upcoming_games(df, hours=3):
+    utc = pytz.utc
+    now = datetime.now(utc)  # Make this timezone-aware in UTC
+    end_time = now + timedelta(hours=hours)
+    
+    df['Date & Time'] = pd.to_datetime(df['Date & Time'])
+    upcoming_games = df[(df['Date & Time'] >= now) & (df['Date & Time'] <= end_time) & (df['Status'] == 'STATUS_SCHEDULED')]
+    
+    return upcoming_games
+
+def get_team_record(team, standings_df):
+    record = standings_df[standings_df['Team'] == team].iloc[0]
+    wins = record['Wins']
+    losses = record['Losses']
+    ties = record['Ties']
+    if ties == 0:
+        return f"{wins}-{losses}"
+    return f"{wins}-{losses}-{ties}"
+
+def find_next_game_week(df):
+    """Find the week of the next upcoming game."""
+    now = datetime.now(pytz.timezone('US/Eastern'))
+    next_game = df[df['Date & Time'] > now].iloc[0]
+    return next_game['Week']
+
+def filter_games_by_week(df, week):
+    """Filter the games based on the week."""
+    return df[df['Week'] == week]
 
 def post_to_squabblr(title, content):
-    """Post the content to Squabblr."""
-    print(f"Posting to Squabblr with title: {title}")
+    logging.info(f"Posting article '{title}' to Squabblr.co...")
     headers = {
-        'authorization': 'Bearer ' + SQUABBLES_TOKEN
+        'authorization': 'Bearer ' + SQUABBLR_TOKEN
     }
-    resp = requests.post('https://squabblr.co/api/new-post', data={
+    response = requests.post('https://squabblr.co/api/new-post', data={
         "community_name": "NFL",
         "title": title,
         "content": content
     }, headers=headers)
+    logging.info(f"Article '{title}' posted successfully.")
+    return response.json()
 
-    print(f"Post response: {resp.json()}")
+# Load the CSV data
+schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
+standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
+logging.info("Data loaded successfully.")
 
-def main():
-    schedule = fetch_schedule_from_gist()
-    week = get_current_week(schedule)
-    print(f"Current week: {week}")
+# 2. Processing
 
-    games = [game for game in schedule if game['Week'] == week]
-    construct_weekly_schedule_post(games, week)
+# Find the week of the next game
+next_week = find_next_game_week(schedule_df)
 
-if __name__ == "__main__":
-    main()
+# Filter the games of that week
+games_of_the_week = filter_games_by_week(schedule_df, next_week)
+
+# Construct the post content
+title = f"{next_week} Schedule - NFL 2023 Season"
+content_lines = [
+    f"Here's what's on tap for {next_week} in the NFL 2023 Season!",
+    "",
+    "| Date & Time | Match Up |",
+    "| --- | --- |"
+]
+
+for _, game in games_of_the_week.iterrows():
+    home_team = game['Home Team']
+    away_team = game['Away Team']
+    kickoff_time = format_kickoff_datetime(game['Date & Time'])
+    home_team_record = get_team_record(home_team, standings_df)
+    away_team_record = get_team_record(away_team, standings_df)
+    content_lines.append(f"| {kickoff_time} | {away_team} ({away_team_record}) vs. {home_team} ({home_team_record}) |")
+
+content_lines.extend([
+    "",
+    "Join us in the live chat for every game! https://squabblr.co/s/nfl/chat",
+    "",
+    "----",
+    "I am a bot. Post your feedback on /s/ModBot"
+])
+content = "\n".join(content_lines)
+response_data = post_to_squabblr(title, content)
+
+logging.info("Script completed successfully.")
