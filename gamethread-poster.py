@@ -20,11 +20,16 @@ GIST_FILENAME_STANDINGS = 'nfl-standings.csv'
 GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_STANDINGS}/raw/{GIST_FILENAME_STANDINGS}"
 
 # Load the CSV data from uploaded files
-schedule_df = pd.read_csv('/path/to/nfl-schedule.csv')
-standings_df = pd.read_csv('/path/to/nfl-standings.csv')
+schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
+standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
 logging.info("Data loaded successfully.")
 
 # 2. Processing
+
+def fetch_csv_from_gist(gist_url):
+    response = requests.get(gist_url)
+    response.raise_for_status()  # Raise an exception for HTTP errors
+    return pd.read_csv(pd.StringIO(response.text))
 
 def filter_upcoming_games(df, hours=3):
     now = datetime.now()
@@ -45,6 +50,21 @@ def get_team_record(team, standings_df):
     if ties == 0:
         return f"{wins}-{losses}"
     return f"{wins}-{losses}-{ties}"
+
+def update_gist_file(gist_id, filename, content, token):
+    headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3+json'
+    }
+    data = {
+        'files': {
+            filename: {
+                'content': content
+            }
+        }
+    }
+    response = requests.patch(f'https://api.github.com/gists/{gist_id}', headers=headers, json=data)
+    response.raise_for_status()  # Raise an exception for HTTP errors
 
 def construct_post_content(row, standings_df):
     home_team = row['Home Team']
@@ -115,6 +135,7 @@ if not upcoming_games.empty:
 # 3. Finalization
 
 # Here, you would update the `nfl-schedule.csv` gist with the new data
-# Since I cannot perform this action in the current environment, I'm logging a placeholder message.
 logging.info("nfl-schedule.csv would be updated on GitHub Gist at this step.")
+csv_content = schedule_df.to_csv(index=False)
+update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, csv_content, GITHUB_TOKEN)
 logging.info("Script completed successfully.")
