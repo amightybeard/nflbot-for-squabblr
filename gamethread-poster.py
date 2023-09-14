@@ -27,10 +27,29 @@ def fetch_csv_from_gist(gist_url):
     response.raise_for_status()  # Raise an exception for HTTP errors
     return pd.read_csv(pd.StringIO(response.text))
 
-# Load the CSV data from uploaded files
-schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
-standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
-logging.info("Data loaded successfully.")
+def ordinal(number):
+    """Return the ordinal representation of a number."""
+    if 10 <= number % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(number % 10, 'th')
+    return f"{number}{suffix}"
+
+def format_kickoff_datetime(dt_str):
+    """Format the datetime string to the desired string representation."""
+    utc = pytz.utc
+    eastern = pytz.timezone('US/Eastern')
+    
+    # Parse the date string and set it to UTC
+    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M%SZ').replace(tzinfo=utc)
+    
+    # Convert the datetime to Eastern Time
+    dt_eastern = dt.astimezone(eastern)
+    
+    date_part = f"{dt_eastern.strftime('%B')} {ordinal(dt_eastern.day)}, {dt_eastern.year}"
+    time_part = dt_eastern.strftime('%I:%M%p ET')
+    
+    return f"{date_part} at {time_part}"
 
 def filter_upcoming_games(df, hours=6):
     now = datetime.now()
@@ -52,22 +71,6 @@ def get_team_record(team, standings_df):
         return f"{wins}-{losses}"
     return f"{wins}-{losses}-{ties}"
 
-def format_kickoff_datetime(dt_str):
-    """Format the datetime string to the desired string representation."""
-    utc = pytz.utc
-    eastern = pytz.timezone('US/Eastern')
-    
-    # Parse the date string and set it to UTC
-    dt = datetime.strptime(dt_str, '%Y-%m-%dT%H:%M%SZ').replace(tzinfo=utc)
-    
-    # Convert the datetime to Eastern Time
-    dt_eastern = dt.astimezone(eastern)
-    
-    date_part = f"{dt_eastern.strftime('%B')} {ordinal(dt_eastern.day)}, {dt_eastern.year}"
-    time_part = dt_eastern.strftime('%I:%M%p ET')
-    
-    return f"{date_part} at {time_part}"
-
 def update_gist_file(gist_id, filename, content, token):
     headers = {
         'Authorization': f'token {token}',
@@ -82,8 +85,6 @@ def update_gist_file(gist_id, filename, content, token):
     }
     response = requests.patch(f'https://api.github.com/gists/{gist_id}', headers=headers, json=data)
     response.raise_for_status()  # Raise an exception for HTTP errors
-
-
 
 def construct_post_content(row, standings_df):
     home_team = row['Home Team']
@@ -154,6 +155,11 @@ if not upcoming_games.empty:
         time.sleep(15)
 
 # 3. Finalization
+
+# Load the CSV data from uploaded files
+schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
+standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
+logging.info("Data loaded successfully.")
 
 # Here, you would update the `nfl-schedule.csv` gist with the new data
 logging.info("nfl-schedule.csv would be updated on GitHub Gist at this step.")
