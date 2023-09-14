@@ -20,7 +20,7 @@ GIST_ID_STANDINGS = os.environ.get('NFLBOT_STANDINGS_GIST')
 GIST_FILENAME_STANDINGS = 'nfl-standings.csv'
 GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_STANDINGS}/raw/{GIST_FILENAME_STANDINGS}"
 
-# 2. Processing
+# 2. Function Definitions
 
 def fetch_csv_from_gist(gist_url):
     response = requests.get(gist_url)
@@ -137,6 +137,13 @@ def post_to_squabblr(title, content):
     logging.info(f"Article '{title}' posted successfully.")
     return response.json()
 
+# 3. Main Logic
+
+# Load the CSV data from uploaded files
+schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
+standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
+logging.info("Data loaded successfully.")
+
 upcoming_games = filter_upcoming_games(schedule_df)
 if not upcoming_games.empty:
     for _, game in upcoming_games.iterrows():
@@ -154,14 +161,8 @@ if not upcoming_games.empty:
         # Delay for 15 seconds before processing the next game
         time.sleep(15)
 
-# 3. Finalization
+# 4. Finalization
 
-# Load the CSV data from uploaded files
-schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
-standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
-logging.info("Data loaded successfully.")
-
-# Here, you would update the `nfl-schedule.csv` gist with the new data
 logging.info("nfl-schedule.csv would be updated on GitHub Gist at this step.")
 csv_content = schedule_df.to_csv(index=False)
 update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, csv_content, GITHUB_TOKEN)
