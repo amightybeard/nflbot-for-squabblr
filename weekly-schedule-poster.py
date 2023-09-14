@@ -99,30 +99,41 @@ next_week = find_next_game_week(schedule_df)
 # Filter the games of that week
 games_of_the_week = filter_games_by_week(schedule_df, next_week)
 
+def construct_schedule_table_content(week_games, standings_df):
+    header = "| Date | Time | Matchup |\n|---|---|---|\n"
+    rows = []
+    
+    for _, game in week_games.iterrows():
+        date_str = game['Date & Time'].strftime('%a %m/%d')
+        time_str = game['Date & Time'].strftime('%I:%M%p ET')
+        
+        away_team_short = game['Away Team Short']
+        home_team_short = game['Home Team Short']
+        away_team_record = get_team_record(game['Away Team'], standings_df)
+        home_team_record = get_team_record(game['Home Team'], standings_df)
+        
+        row = f"| {date_str} | {time_str} | {away_team_short} ({away_team_record}) vs. {home_team_short} ({home_team_record}) |"
+        rows.append(row)
+    
+    return header + "\n".join(rows)
+
 # Construct the post content
 title = f"{next_week} Schedule - NFL 2023 Season"
+
+# Use the new function to construct the table content
+table_content = construct_schedule_table_content(games_of_the_week, standings_df)
+
 content_lines = [
     f"Here's what's on tap for {next_week} in the NFL 2023 Season!",
     "",
-    "| Date & Time | Match Up |",
-    "| --- | --- |"
-]
-
-for _, game in games_of_the_week.iterrows():
-    home_team = game['Home Team']
-    away_team = game['Away Team']
-    kickoff_time = format_kickoff_datetime(game['Date & Time'].strftime('%Y-%m-%dT%H:%M:%SZ'))
-    home_team_record = get_team_record(home_team, standings_df)
-    away_team_record = get_team_record(away_team, standings_df)
-    content_lines.append(f"| {kickoff_time} | {away_team} ({away_team_record}) vs. {home_team} ({home_team_record}) |")
-
-content_lines.extend([
+    table_content,
     "",
     "Join us in the live chat for every game! https://squabblr.co/s/nfl/chat",
     "",
     "----",
     "I am a bot. Post your feedback on /s/ModBot"
-])
+]
+
 content = "\n".join(content_lines)
 response_data = post_to_squabblr(title, content)
 
