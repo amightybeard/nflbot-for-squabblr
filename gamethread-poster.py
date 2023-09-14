@@ -20,17 +20,17 @@ GIST_ID_STANDINGS = os.environ.get('NFLBOT_STANDINGS_GIST')
 GIST_FILENAME_STANDINGS = 'nfl-standings.csv'
 GIST_URL_STANDINGS = f"https://gist.githubusercontent.com/amightybeard/{GIST_ID_STANDINGS}/raw/{GIST_FILENAME_STANDINGS}"
 
-# Load the CSV data from uploaded files
-schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
-standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
-logging.info("Data loaded successfully.")
-
 # 2. Processing
 
 def fetch_csv_from_gist(gist_url):
     response = requests.get(gist_url)
     response.raise_for_status()  # Raise an exception for HTTP errors
     return pd.read_csv(pd.StringIO(response.text))
+
+# Load the CSV data from uploaded files
+schedule_df = fetch_csv_from_gist(GIST_URL_SCHEDULES)
+standings_df = fetch_csv_from_gist(GIST_URL_STANDINGS)
+logging.info("Data loaded successfully.")
 
 def filter_upcoming_games(df, hours=6):
     now = datetime.now()
