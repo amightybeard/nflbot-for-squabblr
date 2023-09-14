@@ -32,7 +32,7 @@ def fetch_csv_from_gist(gist_url):
     response.raise_for_status()  # Raise an exception for HTTP errors
     return pd.read_csv(pd.StringIO(response.text))
 
-def filter_upcoming_games(df, hours=3):
+def filter_upcoming_games(df, hours=6):
     now = datetime.now()
     end_time = now + timedelta(hours=hours)
     
