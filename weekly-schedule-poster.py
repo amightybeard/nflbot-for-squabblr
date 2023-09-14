@@ -51,16 +51,6 @@ def format_kickoff_datetime(dt_str):
     
     return f"{date_part} at {time_part}"
 
-def filter_upcoming_games(df, hours=3):
-    utc = pytz.utc
-    now = datetime.now(utc)  # Make this timezone-aware in UTC
-    end_time = now + timedelta(hours=hours)
-    
-    df['Date & Time'] = pd.to_datetime(df['Date & Time'])
-    upcoming_games = df[(df['Date & Time'] >= now) & (df['Date & Time'] <= end_time) & (df['Status'] == 'STATUS_SCHEDULED')]
-    
-    return upcoming_games
-
 def get_team_record(team, standings_df):
     record = standings_df[standings_df['Team'] == team].iloc[0]
     wins = record['Wins']
@@ -71,8 +61,9 @@ def get_team_record(team, standings_df):
     return f"{wins}-{losses}-{ties}"
 
 def find_next_game_week(df):
-    """Find the week of the next upcoming game."""
-    now = datetime.now(pytz.timezone('US/Eastern'))
+    """Find the week of the next scheduled game."""
+    now = datetime.now(pytz.utc)
+    df['Date & Time'] = pd.to_datetime(df['Date & Time'])  # Convert the 'Date & Time' column to datetime objects
     next_game = df[df['Date & Time'] > now].iloc[0]
     return next_game['Week']
 
