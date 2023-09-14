@@ -117,11 +117,6 @@ I am a bot. Post your feedback to /s/ModBot
 """
     return title, content
 
-if not upcoming_games.empty:
-    for _, game in upcoming_games.iterrows():
-        title, content = construct_post_content(game, standings_df)
-        # Here, you can use title and content for posting to Squabblr.co
-
 def post_to_squabblr(title, content):
     logging.info(f"Posting article '{title}' to Squabblr.co...")
     headers = {
