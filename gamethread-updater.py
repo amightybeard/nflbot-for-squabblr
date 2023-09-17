@@ -127,7 +127,7 @@ def construct_post_content(game, standings_df, event_data):
     - **Kickoff**: {kickoff_time}
     - **Location**: {stadium}
     - [ESPN Gamecast]({gamecast_link})
-    - Game Time: {game_time}
+    - Game Clock: {game_time}
     - Last Update: {current_time}
 
     ##### Join The Live Chat! https://squabblr.co/s/nfl/chat
