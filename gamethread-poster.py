@@ -119,7 +119,7 @@ def construct_post_content(row, standings_df):
 | **{home_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
 | **{away_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
 
-*Note, the boxscore will not be updated automatically. We'll get to it when we can.*
+*Scoreboard will be updated every 5 minutes.*
 
 -----
 
