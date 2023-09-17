@@ -97,6 +97,16 @@ def construct_post_content(game, standings_df, event_data):
     period = ordinal(event_data['competitions'][0]['status']['period'])
     current_time = datetime.now(pytz.utc).astimezone(pytz.timezone('US/Eastern')).strftime('%I:%M%p ET')
 
+    # Extract game time
+    game_status = event_data['competitions'][0]['status']['type']['name']
+    
+    if game_status == "STATUS_FINAL":
+        game_time = "Final"
+    else:
+        period = event_data['competitions'][0]['status']['period']
+        display_clock = event_data['competitions'][0]['status']['displayClock']
+        game_time = f"{display_clock} left in the {ordinal(period)} Quarter."
+
     # Extracting scores and linescores
     for competitor in event_data['competitions'][0]['competitors']:
         if competitor['homeAway'] == 'home':
@@ -117,7 +127,7 @@ def construct_post_content(game, standings_df, event_data):
     - **Kickoff**: {kickoff_time}
     - **Location**: {stadium}
     - [ESPN Gamecast]({gamecast_link})
-    - Game Time: {displayClock} left in the {period} Quarter.
+    - Game Time: {game_time}
     - Last Update: {current_time}
 
     ##### Join The Live Chat! https://squabblr.co/s/nfl/chat
