@@ -167,7 +167,7 @@ def main():
             logging.warning(f"Failed to fetch game data for {game['Away Team']} vs. {game['Home Team']} from ESPN.")
             continue
 
-        content = construct_gamethread_content(game, event_data)
+        content = construct_post_content(game, event_data)
         
         logging.info(f"Updating gamethread for game: {game['Away Team']} vs {game['Home Team']}")
         update_gamethread_on_squabblr(content, game['Gamethread Hash ID'])
