@@ -98,10 +98,12 @@ def construct_post_content(game, standings_df, event_data):
     for competitor in event_data['competitions'][0]['competitors']:
         if competitor['homeAway'] == 'home':
             home_score = competitor['score']
-            home_linescores = {item['period']: item['value'] for item in competitor['linescores']}
+            home_linescores = {item['period']: item['value'] for item in competitor['linescores'] if 'period' in item and 'value' in item}
+
         else:
             away_score = competitor['score']
-            away_linescores = {item['period']: item['value'] for item in competitor['linescores']}
+            away_linescores = {item['period']: item['value'] for item in competitor['linescores'] if 'period' in item and 'value' in item}
+
 
     content = f"""
     #### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
