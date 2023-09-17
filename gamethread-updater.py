@@ -160,11 +160,11 @@ def main():
     logging.info("Checking for games in progress...")
     
     for _, game in active_games.iterrows():
-        logging.info(f"Fetching game data for {game['Title']} from ESPN...")
+        logging.info(f"Fetching game data for {game['Away Team']} vs. {game['Home Team']} from ESPN...")
         event_data = fetch_game_data_from_espn(game['Gamecast Link'])
 
         if not event_data:
-            logging.warning(f"Failed to fetch game data for {game['Title']} from ESPN.")
+            logging.warning(f"Failed to fetch game data for {game['Away Team']} vs. {game['Home Team']} from ESPN.")
             continue
 
         content = construct_gamethread_content(game, event_data)
@@ -175,10 +175,10 @@ def main():
 
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
-            logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Title']} in the CSV...")
+            logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
             game['Status'] = 'STATUS_FINAL'
             update_gist(GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False))
-            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Title']}.")
+            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
 
         time.sleep(5)  # Delay to prevent rate-limiting and overlapping operations
 
