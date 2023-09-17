@@ -122,8 +122,8 @@ def construct_post_content(game, standings_df, event_data):
 
     | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
     |---|---|---|---|---|---|---|
-    | **{home_team_short}** | {home_linescores.get(1, '-')} | {home_linescores.get(2, '-')} | {home_linescores.get(3, '-')} | {home_linescores.get(4, '-')} | {home_linescores.get(5, '-')} | {home_score} |
-    | **{away_team_short}** | {away_linescores.get(1, '-')} | {away_linescores.get(2, '-')} | {away_linescores.get(3, '-')} | {away_linescores.get(4, '-')} | {away_linescores.get(5, '-')} | {away_score} |
+    | **{home_team_short}** | {home_linescores.get(1, '0')} | {home_linescores.get(2, '0')} | {home_linescores.get(3, '0')} | {home_linescores.get(4, '0')} | {home_linescores.get(5, '0')} | {home_score} |
+    | **{away_team_short}** | {away_linescores.get(1, '0')} | {away_linescores.get(2, '0')} | {away_linescores.get(3, '0')} | {away_linescores.get(4, '0')} | {away_linescores.get(5, '0')} | {away_score} |
 
     *Scoreboard will be updated every 5-minutes.*
     
