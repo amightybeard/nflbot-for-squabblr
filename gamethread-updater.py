@@ -50,7 +50,7 @@ def get_team_record(team, standings_df):
         return f"{wins}-{losses}"
     return f"{wins}-{losses}-{ties}"
 
-def update_gist(gist_id, filename, content, token):
+def update_gist_files(gist_id, filename, content, token):
     headers = {
         'Authorization': f'token {token}',
         'Accept': 'application/vnd.github.v3+json'
@@ -186,7 +186,7 @@ def main():
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
             logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
             game['Status'] = 'STATUS_FINAL'
-            update_gist(GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False))
+            update_gist_file(NFLBOT_SCHEDULES_GIST, GIST_FILENAME_SCHEDULES, schedule_df.to
             logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
 
         time.sleep(5)  # Delay to prevent rate-limiting and overlapping operations
