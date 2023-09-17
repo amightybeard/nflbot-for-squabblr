@@ -50,7 +50,7 @@ def get_team_record(team, standings_df):
         return f"{wins}-{losses}"
     return f"{wins}-{losses}-{ties}"
 
-def update_gist_file(gist_id, filename, content, token):
+def update_gist(gist_id, filename, content, token):
     headers = {
         'Authorization': f'token {token}',
         'Accept': 'application/vnd.github.v3+json'
