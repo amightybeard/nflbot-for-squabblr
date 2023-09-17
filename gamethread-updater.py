@@ -4,6 +4,7 @@ import pandas as pd
 import time
 from datetime import datetime
 import pytz
+from textwrap import dedent
 import logging
 
 # Constants
@@ -107,7 +108,7 @@ def construct_post_content(game, standings_df, event_data):
             away_linescores = {item['period']: item['value'] for item in competitor['linescores'] if 'period' in item and 'value' in item}
 
 
-    content = f"""
+    content = dedent(f"""
     #### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
     - **Kickoff**: {kickoff_time}
     - **Location**: {stadium}
@@ -129,7 +130,7 @@ def construct_post_content(game, standings_df, event_data):
     -----
 
     I am a bot. Post your feedback to /s/ModBot
-    """
+    """)
     return content
 
 def update_gamethread_on_squabblr(content, hash_id):
