@@ -103,13 +103,13 @@ def construct_post_content(game, standings_df, event_data):
             home_score = competitor['score']
             home_linescores = {}
             for index, item in enumerate(competitor['linescores']):
-                home_linescores[index + 1] = item['value']
+                home_linescores[index + 1] = int(item['value'])
 
         else:
             away_score = competitor['score']
             away_linescores = {}
             for index, item in enumerate(competitor['linescores']):
-                away_linescores[index + 1] = item['value']
+                away_linescores[index + 1] = int(item['value'])
 
 
     content = dedent(f"""
