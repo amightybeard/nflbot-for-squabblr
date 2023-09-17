@@ -1,9 +1,9 @@
 name: Gamethread Poster
 
 on:
-  # schedule:
+  schedule:
     # Runs every hour on Thursdays, Sundays, and Mondays
-    # - cron: '0 * * 1,4,7 *'
+    - cron: '*/5 * * * *'
   workflow_dispatch: 
 
 jobs:
