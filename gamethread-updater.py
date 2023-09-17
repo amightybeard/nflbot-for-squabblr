@@ -101,11 +101,15 @@ def construct_post_content(game, standings_df, event_data):
     for competitor in event_data['competitions'][0]['competitors']:
         if competitor['homeAway'] == 'home':
             home_score = competitor['score']
-            home_linescores = {item['period']: item['value'] for item in competitor['linescores'] if 'period' in item and 'value' in item}
+            home_linescores = {}
+            for index, item in enumerate(competitor['linescores']):
+                home_linescores[index + 1] = item['value']
 
         else:
             away_score = competitor['score']
-            away_linescores = {item['period']: item['value'] for item in competitor['linescores'] if 'period' in item and 'value' in item}
+            away_linescores = {}
+            for index, item in enumerate(competitor['linescores']):
+                away_linescores[index + 1] = item['value']
 
 
     content = dedent(f"""
