@@ -82,7 +82,7 @@ def fetch_game_data_from_espn(gamecast_link):
 def construct_post_content(game, standings_df, event_data):
     away_team = game['Away Team']
     home_team = game['Home Team']
-    kickoff_time = format_kickoff_datetime(game['Date & Time'].strftime('%Y-%m-%dT%H:%M:%SZ'))
+    kickoff_time = format_kickoff_datetime(game['Date & Time'])
     stadium = game['Stadium']
     gamecast_link = game['Gamecast Link']
 
