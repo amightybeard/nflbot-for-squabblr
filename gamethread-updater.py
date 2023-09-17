@@ -146,9 +146,12 @@ def main():
     schedule_df = pd.read_csv(GIST_URL_SCHEDULES)
     standings_df = pd.read_csv(GIST_URL_STANDINGS)
     logging.info("Data loaded successfully.")
+    logging.info("Checking for games in progress...")
 
     active_games = fetch_active_games(schedule_df)
-
+    if active_games.empty:
+        logging.info("No games are in progress.")
+    
     for _, game in active_games.iterrows():
         logging.info(f"Fetching game data for {game['Title']} from ESPN...")
         event_data = fetch_game_data_from_espn(game['Gamecast Link'])
@@ -159,9 +162,9 @@ def main():
 
         content = construct_gamethread_content(game, event_data)
         
-        logging.info(f"Updating gamethread for {game['Title']} on Squabblr...")
+        logging.info(f"Updating gamethread for game: {game['Away Team']} vs {game['Home Team']}")
         update_gamethread_on_squabblr(content, game['Gamethread Hash ID'])
-        logging.info(f"Gamethread for {game['Title']} updated successfully.")
+        logging.info(f"Successfully updated gamethread for game: {game['Away Team']} vs {game['Home Team']}")
 
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
