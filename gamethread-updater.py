@@ -149,8 +149,13 @@ def main():
     logging.info("Checking for games in progress...")
 
     active_games = fetch_active_games(schedule_df)
+    # Check if there are no active games and log a message
     if active_games.empty:
         logging.info("No games are in progress.")
+        logging.info("Gamethread updater finished.")
+        return
+
+    logging.info("Checking for games in progress...")
     
     for _, game in active_games.iterrows():
         logging.info(f"Fetching game data for {game['Title']} from ESPN...")
