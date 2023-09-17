@@ -183,11 +183,13 @@ def main():
         logging.info(f"Successfully updated gamethread for game: {game['Away Team']} vs {game['Home Team']}")
 
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
+        # Update the CSV if the game's status has changed to "STATUS_FINAL"
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
-            logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
-            game['Status'] = 'STATUS_FINAL'
-            update_gist_file(NFLBOT_SCHEDULES_GIST, GIST_FILENAME_SCHEDULES, schedule_df.to
-            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
+           logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
+           game['Status'] = 'STATUS_FINAL'
+           update_gist_file(NFLBOT_SCHEDULES_GIST, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), SQUABBLES_TOKEN)
+           logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
+
 
         time.sleep(5)  # Delay to prevent rate-limiting and overlapping operations
 
