@@ -174,7 +174,7 @@ def main():
         content = construct_post_content(game, standings_df, event_data)
         
         logging.info(f"Updating gamethread for game: {game['Away Team']} vs {game['Home Team']}")
-        update_gamethread_on_squabblr(content, game['Gamethread Hash ID'])
+        update_gamethread_on_squabblr(content, game['Squabblr Hash ID'])
         logging.info(f"Successfully updated gamethread for game: {game['Away Team']} vs {game['Home Team']}")
 
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
