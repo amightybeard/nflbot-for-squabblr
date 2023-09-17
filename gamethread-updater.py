@@ -187,7 +187,7 @@ def main():
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
            logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
            game['Status'] = 'STATUS_FINAL'
-           update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), SQUABBLR_TOKEN)
+           update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), GITHUB_TOKEN)
            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
 
 
