@@ -123,28 +123,31 @@ def construct_post_content(game, standings_df, event_data):
 
 
     content = dedent(f"""
-    #### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
-    - **Kickoff**: {kickoff_time}
-    - **Location**: {stadium}
-    - [ESPN Gamecast]({gamecast_link})
-    - Game Clock: {game_time}
-    - Last Update: {current_time}
+##### Join The Live Chat! https://squabblr.co/s/nfl/chat
 
-    ##### Join The Live Chat! https://squabblr.co/s/nfl/chat
+-----
 
-    -----
+### Scoreboard
+**Game Clock**: {game_time}
 
-    | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
-    |---|---|---|---|---|---|---|
-    | **{home_team_short}** | {home_linescores.get(1, '0')} | {home_linescores.get(2, '0')} | {home_linescores.get(3, '0')} | {home_linescores.get(4, '0')} | {home_linescores.get(5, '0')} | {home_score} |
-    | **{away_team_short}** | {away_linescores.get(1, '0')} | {away_linescores.get(2, '0')} | {away_linescores.get(3, '0')} | {away_linescores.get(4, '0')} | {away_linescores.get(5, '0')} | {away_score} |
+| Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
+|---|---|---|---|---|---|---|
+| **{home_team_short}** | {home_linescores.get(1, '0')} | {home_linescores.get(2, '0')} | {home_linescores.get(3, '0')} | {home_linescores.get(4, '0')} | {home_linescores.get(5, '0')} | {home_score} |
+| **{away_team_short}** | {away_linescores.get(1, '0')} | {away_linescores.get(2, '0')} | {away_linescores.get(3, '0')} | {away_linescores.get(4, '0')} | {away_linescores.get(5, '0')} | {away_score} |
 
-    *Scoreboard will be updated every 5-minutes.*
-    
-    -----
+*Scoreboard will be updated every 5-minutes.* Last Update: {current_time}
 
-    I am a bot. Post your feedback to /s/ModBot
-    """)
+-----
+
+### Game Details
+- **Kickoff**: {kickoff_time}
+- **Location**: {stadium}
+- [ESPN Gamecast]({gamecast_link})
+- Home: **{home_team}** ({home_team_record})
+- Away: **{away_team}** ({away_team_record})
+
+I am a bot. Post your feedback to /s/ModBot
+""")
     return content
 
 def update_gamethread_on_squabblr(content, hash_id):
