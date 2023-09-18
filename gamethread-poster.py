@@ -105,14 +105,12 @@ def construct_post_content(row, standings_df):
     
     title = f"[Gamethread] {home_team} at {away_team} - {week}"
     content = f"""
-#### {away_team} ({away_team_record}) vs. {home_team} ({home_team_record})
-- **Kickoff**: {kickoff_time}
-- **Location**: {stadium}
-- [ESPN Gamecast]({gamecast_link})
-
 ##### Join The Live Chat! https://squabblr.co/s/nfl/chat
 
 -----
+
+### Scoreboard
+**Game Clock**: Waiting for Kickoff
 
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
 |---|---|---|---|---|---|---|
@@ -120,6 +118,13 @@ def construct_post_content(row, standings_df):
 | **{away_team_short}** | 0 | 0 | 0 | 0 | 0 | 0 |
 
 *Scoreboard will be updated every 5 minutes.*
+
+### Game Details
+- **Kickoff**: {kickoff_time}
+- **Location**: {stadium}
+- [ESPN Gamecast]({gamecast_link})
+- Home: **{home_team}** ({home_team_record})
+- Away: **{away_team}** ({away_team_record})
 
 -----
 
