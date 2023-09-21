@@ -123,11 +123,6 @@ def construct_post_content(game, standings_df, event_data):
 
 
     content = dedent(f"""
-##### Join The Live Chat! https://squabblr.co/s/nfl/chat
-
------
-
-### Scoreboard
 **Game Clock**: {game_time}
 
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
@@ -136,6 +131,10 @@ def construct_post_content(game, standings_df, event_data):
 | **{away_team_short}** | {away_linescores.get(1, '0')} | {away_linescores.get(2, '0')} | {away_linescores.get(3, '0')} | {away_linescores.get(4, '0')} | {away_linescores.get(5, '0')} | {away_score} |
 
 *Scoreboard will be updated every 5-minutes.* Last Update: {current_time}
+
+-----
+
+##### Join The Live Chat! https://squabblr.co/s/nfl/chat
 
 -----
 
