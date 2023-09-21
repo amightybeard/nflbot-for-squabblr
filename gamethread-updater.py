@@ -122,7 +122,7 @@ def construct_post_content(game, standings_df, event_data):
                 away_linescores[index + 1] = int(item['value'])
 
 
-    content = dedent(f"""
+    content = f"""
 **Game Clock**: {game_time}
 
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
@@ -138,7 +138,7 @@ def construct_post_content(game, standings_df, event_data):
 
 -----
 
-### Game Details
+##### Game Details
 - **Kickoff**: {kickoff_time}
 - **Location**: {stadium}
 - [ESPN Gamecast]({gamecast_link})
@@ -146,7 +146,7 @@ def construct_post_content(game, standings_df, event_data):
 - Away: **{away_team}** ({away_team_record})
 
 I am a bot. Post your feedback to /s/ModBot
-""")
+"""
     return content
 
 def update_gamethread_on_squabblr(content, hash_id):
