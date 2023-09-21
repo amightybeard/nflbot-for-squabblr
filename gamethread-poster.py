@@ -105,7 +105,7 @@ def construct_post_content(row, standings_df):
     
     title = f"[Gamethread] {home_team} at {away_team} - {week}"
     content = f"""
-**Game Clock**: Waiting for Kickoff
+**Game Clock**: Waiting for Kickoff []({gamecast_link})
 
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
 |---|---|---|---|---|---|---|
