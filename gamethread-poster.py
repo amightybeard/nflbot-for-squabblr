@@ -105,11 +105,6 @@ def construct_post_content(row, standings_df):
     
     title = f"[Gamethread] {home_team} at {away_team} - {week}"
     content = f"""
-##### Join The Live Chat! https://squabblr.co/s/nfl/chat
-
------
-
-### Scoreboard
 **Game Clock**: Waiting for Kickoff
 
 | Team | 1Q | 2Q | 3Q | 4Q | OT | Total |
@@ -119,7 +114,13 @@ def construct_post_content(row, standings_df):
 
 *Scoreboard will be updated every 5 minutes.*
 
-### Game Details
+-----
+
+##### Join The Live Chat! https://squabblr.co/s/nfl/chat
+
+-----
+
+##### Game Details
 - **Kickoff**: {kickoff_time}
 - **Location**: {stadium}
 - [ESPN Gamecast]({gamecast_link})
