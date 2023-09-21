@@ -197,11 +197,15 @@ def main():
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
         # Update the CSV if the game's status has changed to "STATUS_FINAL"
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
-           logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
-           game['Status'] = 'STATUS_FINAL'
-           update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), GITHUB_TOKEN)
-           logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
-
+            logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
+            
+            # Update the status of the game in the DataFrame
+            idx = schedule_df[(schedule_df['Away Team'] == game['Away Team']) & (schedule_df['Home Team'] == game['Home Team'])].index
+            schedule_df.at[idx, 'Status'] = 'STATUS_FINAL'
+            
+            # Now update the gist
+            update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), GITHUB_TOKEN)
+            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
 
         time.sleep(5)  # Delay to prevent rate-limiting and overlapping operations
 
