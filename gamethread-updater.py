@@ -110,17 +110,28 @@ def construct_post_content(game, standings_df, event_data):
     # Extracting scores and linescores
     for competitor in event_data['competitions'][0]['competitors']:
         if competitor['homeAway'] == 'home':
-            home_score = competitor['score']
-            home_linescores = {}
-            for index, item in enumerate(competitor['linescores']):
-                home_linescores[index + 1] = int(item['value'])
-
+            home_team_api = competitor['team']['displayName']
         else:
-            away_score = competitor['score']
-            away_linescores = {}
-            for index, item in enumerate(competitor['linescores']):
-                away_linescores[index + 1] = int(item['value'])
+            away_team_api = competitor['team']['displayName']
 
+    # Match API's home and away teams with game's teams
+    if game['Home Team'] == home_team_api:
+        home_team = game['Home Team']
+        away_team = game['Away Team']
+        home_team_short = game['Home Team Short']
+        away_team_short = game['Away Team Short']
+    else:
+        home_team = game['Away Team']
+        away_team = game['Home Team']
+        home_team_short = game['Away Team Short']
+        away_team_short = game['Home Team Short']
+
+    kickoff_time = format_kickoff_datetime(game['Date & Time'])
+    stadium = game['Stadium']
+    gamecast_link = game['Gamecast Link']
+
+    home_team_record = get_team_record(home_team, standings_df)
+    away_team_record = get_team_record(away_team, standings_df)
 
     content = f"""
 **Game Clock**: {game_time}
