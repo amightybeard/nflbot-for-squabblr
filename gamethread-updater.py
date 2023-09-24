@@ -199,13 +199,19 @@ def main():
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
             logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
             
-            # Update the status of the game in the DataFrame
-            idx = schedule_df[(schedule_df['Away Team'] == game['Away Team']) & (schedule_df['Home Team'] == game['Home Team'])].index
-            schedule_df.at[idx, 'Status'] = 'STATUS_FINAL'
-            
-            # Now update the gist
-            update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), GITHUB_TOKEN)
-            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
+                # Get the index of the game in the schedule DataFrame
+    game_row = schedule_df[
+        (schedule_df['Home Team'] == game['Home Team']) &
+        (schedule_df['Away Team'] == game['Away Team'])
+    ]
+    
+    if not game_row.empty:
+        idx = game_row.index[0]
+        # Update the status in the schedule DataFrame
+        schedule_df.at[idx, 'Status'] = 'STATUS_FINAL'
+    else:
+        logging.warning(f"No matching game found in the schedule CSV for {game['Home Team']} vs. {game['Away Team']}. Unable to update status.")
+
 
         time.sleep(5)  # Delay to prevent rate-limiting and overlapping operations
 
