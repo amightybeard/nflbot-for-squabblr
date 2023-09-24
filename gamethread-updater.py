@@ -114,17 +114,17 @@ def construct_post_content(game, standings_df, event_data):
         else:
             away_team_api = competitor['team']['displayName']
 
-    # Match API's home and away teams with game's teams
-    if game['Home Team'] == home_team_api:
-        home_team = game['Home Team']
-        away_team = game['Away Team']
-        home_team_short = game['Home Team Short']
-        away_team_short = game['Away Team Short']
-    else:
-        home_team = game['Away Team']
-        away_team = game['Home Team']
-        home_team_short = game['Away Team Short']
-        away_team_short = game['Home Team Short']
+        # Match API's home and away teams with game's teams
+        if game['Home Team'] == home_team_api:
+            home_team = game['Home Team']
+            away_team = game['Away Team']
+            home_team_short = game['Home Team Short']
+            away_team_short = game['Away Team Short']
+        else:
+            home_team = game['Away Team']
+            away_team = game['Home Team']
+            home_team_short = game['Away Team Short']
+            away_team_short = game['Home Team Short']
 
     kickoff_time = format_kickoff_datetime(game['Date & Time'])
     stadium = game['Stadium']
