@@ -88,6 +88,8 @@ def construct_post_content(game, standings_df, event_data):
     kickoff_time = format_kickoff_datetime(game['Date & Time'])
     stadium = game['Stadium']
     gamecast_link = game['Gamecast Link']
+    home_linescores = {}
+    away_linescores = {}
 
     home_team_record = get_team_record(home_team, standings_df)
     away_team_record = get_team_record(away_team, standings_df)
