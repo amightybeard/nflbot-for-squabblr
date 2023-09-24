@@ -81,27 +81,43 @@ def fetch_game_data_from_espn(gamecast_link):
     return None
 
 def construct_post_content(game, standings_df, event_data):
-    away_team = game['Away Team']
-    home_team = game['Home Team']
-    home_team_short = game['Home Team Short']
-    away_team_short = game['Away Team Short']
+    home_linescores = {}
+    away_linescores = {}
+    
+    # Fetch home and away teams from the API response
+    for competitor in event_data['competitions'][0]['competitors']:
+        if competitor['homeAway'] == 'home':
+            home_team_api = competitor['team']['displayName']
+            home_score = competitor['score']
+            for index, item in enumerate(competitor['linescores']):
+                home_linescores[index + 1] = int(item['value'])
+        else:
+            away_team_api = competitor['team']['displayName']
+            away_score = competitor['score']
+            for index, item in enumerate(competitor['linescores']):
+                away_linescores[index + 1] = int(item['value'])
+
+    # Match API's home and away teams with game's teams
+    if game['Home Team'] == home_team_api:
+        home_team = game['Home Team']
+        away_team = game['Away Team']
+        home_team_short = game['Home Team Short']
+        away_team_short = game['Away Team Short']
+    else:
+        home_team = game['Away Team']
+        away_team = game['Home Team']
+        home_team_short = game['Away Team Short']
+        away_team_short = game['Home Team Short']
+
     kickoff_time = format_kickoff_datetime(game['Date & Time'])
     stadium = game['Stadium']
     gamecast_link = game['Gamecast Link']
-    home_linescores = {}
-    away_linescores = {}
 
     home_team_record = get_team_record(home_team, standings_df)
     away_team_record = get_team_record(away_team, standings_df)
 
-    # Extracting data from ESPN API
-    displayClock = event_data['competitions'][0]['status']['displayClock']
-    period = ordinal(event_data['competitions'][0]['status']['period'])
-    current_time = datetime.now(pytz.utc).astimezone(pytz.timezone('US/Eastern')).strftime('%I:%M%p ET')
-
-    # Extract game time
+    # Extract game time from the ESPN API
     game_status = event_data['competitions'][0]['status']['type']['name']
-    
     if game_status == "STATUS_FINAL":
         game_time = "Final"
     else:
@@ -109,31 +125,7 @@ def construct_post_content(game, standings_df, event_data):
         display_clock = event_data['competitions'][0]['status']['displayClock']
         game_time = f"{display_clock} left in the {ordinal(period)} Quarter."
 
-    # Extracting scores and linescores
-    for competitor in event_data['competitions'][0]['competitors']:
-        if competitor['homeAway'] == 'home':
-            home_team_api = competitor['team']['displayName']
-        else:
-            away_team_api = competitor['team']['displayName']
-
-        # Match API's home and away teams with game's teams
-        if game['Home Team'] == home_team_api:
-            home_team = game['Home Team']
-            away_team = game['Away Team']
-            home_team_short = game['Home Team Short']
-            away_team_short = game['Away Team Short']
-        else:
-            home_team = game['Away Team']
-            away_team = game['Home Team']
-            home_team_short = game['Away Team Short']
-            away_team_short = game['Home Team Short']
-
-    kickoff_time = format_kickoff_datetime(game['Date & Time'])
-    stadium = game['Stadium']
-    gamecast_link = game['Gamecast Link']
-
-    home_team_record = get_team_record(home_team, standings_df)
-    away_team_record = get_team_record(away_team, standings_df)
+    current_time = datetime.now(pytz.utc).astimezone(pytz.timezone('US/Eastern')).strftime('%I:%M%p ET')
 
     content = f"""
 **Game Clock**: {game_time}
