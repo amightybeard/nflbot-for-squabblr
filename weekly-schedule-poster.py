@@ -126,7 +126,7 @@ table_content = construct_schedule_table_content(games_of_the_week, standings_df
 content_lines = [
     f"#### Here's what's on tap for {next_week} in the NFL 2023 Season!",
     "",
-    "##### [Join us in the live chat for every game!](https://squabblr.co/s/nfl/chat"),
+    "##### [Join us in the live chat for every game!](https://squabblr.co/s/nfl/chat)",
     "",
     table_content,
     "",
