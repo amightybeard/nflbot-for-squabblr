@@ -1,8 +1,8 @@
 name: Weekly Schedule Poster
 
 on:
-  schedule:
-    - cron: '0 13 * * 4'  # Runs at 9am ET every Thursday
+  # schedule:
+  #  - cron: '0 13 * * 4'  # Runs at 9am ET every Thursday
   workflow_dispatch:  
 
 jobs:
