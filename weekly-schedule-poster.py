@@ -47,7 +47,7 @@ def format_kickoff_datetime(dt_str):
     dt_eastern = dt.astimezone(eastern)
     
     date_part = f"{dt_eastern.strftime('%B')} {ordinal(dt_eastern.day)}, {dt_eastern.year}"
-    time_part = dt_eastern.strftime('%I:%M%p ET')
+    time_part = dt_eastern.strftime('%-I:%M%p ET')
     
     return f"{date_part} at {time_part}"
 
@@ -102,10 +102,14 @@ games_of_the_week = filter_games_by_week(schedule_df, next_week)
 def construct_schedule_table_content(week_games, standings_df):
     header = "| Date | Time | Matchup |\n|---|---|---|\n"
     rows = []
+    eastern = pytz.timezone('US/Eastern')
     
     for _, game in week_games.iterrows():
-        date_str = game['Date & Time'].strftime('%a %m/%d')
-        time_str = game['Date & Time'].strftime('%I:%M%p ET')
+        # Ensure the datetime is timezone-aware and convert to Eastern Time
+        game_time = game['Date & Time'].replace(tzinfo=pytz.utc).astimezone(eastern)
+        
+        date_str = game_time.strftime('%a %m/%d')
+        time_str = game_time.strftime('%I:%M%p ET')
         
         away_team_short = game['Away Team Short']
         home_team_short = game['Home Team Short']
