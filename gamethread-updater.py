@@ -204,7 +204,15 @@ def main():
         if event_data['competitions'][0]['status']['type']['name'] == 'STATUS_FINAL':
             logging.info(f"Updating game status to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']} in the CSV...")
             
-                # Get the index of the game in the schedule DataFrame
+            # Find the index of the game in the DataFrame and update its status
+            game_index = schedule_df[(schedule_df['Away Team'] == game['Away Team']) & (schedule_df['Home Team'] == game['Home Team'])].index[0]
+            schedule_df.at[game_index, 'Status'] = 'STATUS_FINAL'
+            
+            # Now save the updated DataFrame back to your CSV
+            update_gist_file(GIST_ID_SCHEDULES, GIST_FILENAME_SCHEDULES, schedule_df.to_csv(index=False), GITHUB_TOKEN)
+            logging.info(f"Game status updated to 'STATUS_FINAL' for {game['Away Team']} vs. {game['Home Team']}.")
+            
+    # Get the index of the game in the schedule DataFrame
     game_row = schedule_df[
         (schedule_df['Home Team'] == game['Home Team']) &
         (schedule_df['Away Team'] == game['Away Team'])
