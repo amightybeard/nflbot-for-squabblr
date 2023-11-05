@@ -135,7 +135,7 @@ def construct_post_content(game, standings_df, event_data):
 | **{home_team_short}** | {home_linescores.get(1, '0')} | {home_linescores.get(2, '0')} | {home_linescores.get(3, '0')} | {home_linescores.get(4, '0')} | {home_linescores.get(5, '0')} | {home_score} |
 | **{away_team_short}** | {away_linescores.get(1, '0')} | {away_linescores.get(2, '0')} | {away_linescores.get(3, '0')} | {away_linescores.get(4, '0')} | {away_linescores.get(5, '0')} | {away_score} |
 
-*Scoreboard will be updated every 5-minutes.* Last Update: {current_time}
+*Scoreboard will be updated periodically.* Last Update: {current_time}
 
 -----
 
