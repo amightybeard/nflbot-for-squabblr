@@ -1,7 +1,7 @@
 name: Standings Updater
 
 on:
-  schedule:
+  # schedule:
     # Runs every hour on Thursdays, Sundays, and Mondays
     # - cron: '30 */3 * * *'
   workflow_dispatch: 
