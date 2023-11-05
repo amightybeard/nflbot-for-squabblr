@@ -17,12 +17,17 @@ def fetch_nfl_standings(url):
 
 def parse_standings_data(standings_data):
     standings_list = []
-    for group in standings_data['content']['groups']:
-        conference, division = group['name'].split(' ', 1)
-        for team_entry in group['standings']['entries']:
-            team_name = team_entry['team']['displayName']
-            stats = [stat['displayValue'] for stat in team_entry['stats'][:4]]
-            standings_list.append([conference, division, team_name] + stats)
+    # Iterate over conferences in the 'groups' key
+    for conference in standings_data['content']['standings']['groups']:
+        # Iterate over divisions in the 'groups' key of each conference
+        for division in conference['groups']:
+            division_name = division['name']
+            # Iterate over team entries in each division
+            for team_entry in division['standings']['entries']:
+                team_name = team_entry['team']['displayName']
+                # Extract the stats in the expected order: Wins, Losses, Ties, Win %
+                stats = [stat['displayValue'] for stat in team_entry['stats'][:4]]
+                standings_list.append([conference['name'], division_name, team_name] + stats)
     return standings_list
 
 def create_csv_content(standings_data):
