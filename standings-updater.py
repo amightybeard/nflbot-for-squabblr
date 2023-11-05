@@ -17,7 +17,7 @@ def fetch_nfl_standings(url):
 
 def parse_standings_data(standings_data):
     standings_list = []
-    for group in standings_data['content']['standings']['groups']:
+    for group in standings_data['content']['groups']:
         conference, division = group['name'].split(' ', 1)
         for team_entry in group['standings']['entries']:
             team_name = team_entry['team']['displayName']
