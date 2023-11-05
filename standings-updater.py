@@ -21,13 +21,13 @@ def parse_standings_data(standings_data):
     for conference in standings_data['content']['standings']['groups']:
         # Iterate over divisions in the 'groups' key of each conference
         for division in conference['groups']:
-            division_name = division['name']
+            division_name = division['abbreviation']
             # Iterate over team entries in each division
             for team_entry in division['standings']['entries']:
                 team_name = team_entry['team']['displayName']
                 # Extract the stats in the expected order: Wins, Losses, Ties, Win %
                 stats = [stat['displayValue'] for stat in team_entry['stats'][:4]]
-                standings_list.append([conference['name'], division_name, team_name] + stats)
+                standings_list.append([conference['abbreviation'], division_name, team_name] + stats)
     return standings_list
 
 def create_csv_content(standings_data):
