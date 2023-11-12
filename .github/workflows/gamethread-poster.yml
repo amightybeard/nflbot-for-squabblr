@@ -2,7 +2,7 @@ name: Gamethread Poster
 
 on:
   schedule:
-    # Runs every hour on Thursdays, Sundays, and Mondays
+    # Runs 30 minutes past the hour, every 3 hours.
     - cron: '30 */3 * * *'
   workflow_dispatch: 
 
